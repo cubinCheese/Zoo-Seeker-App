@@ -14,8 +14,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // initializing new Map searchable by tags // & list of vertex info
-        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
-        VertexList vertexList = new VertexList(vInfo);
+      //  Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
+       // VertexList vertexList = new VertexList(vInfo);
+
+
+        Intent intent = new Intent(this, SearchDisplayActivity.class);
+        startActivity(intent);
+
 
     }
 
