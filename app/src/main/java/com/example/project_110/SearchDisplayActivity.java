@@ -13,11 +13,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class SearchDisplayActivity extends AppCompatActivity {
-        SearchBar searchbar;
-
-        public RecyclerView recyclerView;
-        private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
-        private Future<Void> future;
+    SearchBar searchbar;
+    public RecyclerView recyclerView;
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+    private Future<Void> future;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +25,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
         // initializing new Map searchable by tags // & list of vertex info
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
         VertexList vertexList = new VertexList(vInfo);
-        System.out.println(vertexList.search("bird").size());
+//        System.out.println(vertexList.search("bird").size());
 
         SearchView search = (SearchView) findViewById(R.id.search);
         searchbar = new SearchBar(search, vertexList);
@@ -37,7 +36,28 @@ public class SearchDisplayActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        /*Map<String, ZooData.VertexInfo> indexedZooData = new HashMap();
+
+
+        this.future = backgroundThreadExecutor.submit(() -> {
+            while (true) { // TODO: change true to something that makes sense
+                runOnUiThread(() -> {
+                    adapter.setSearchListItems(searchbar.currentAnimalsFromQuery);
+                });
+                Thread.sleep(1000);
+            }
+        });
+
+
+        //Log.d("tag", searchbar.currentAnimalsFromQuery.get(0).name);
+
+
+
+    }
+}
+
+
+
+ /*Map<String, ZooData.VertexInfo> indexedZooData = new HashMap();
 
         List<String> grizzList = new ArrayList();
         grizzList.add("grizzly");
@@ -69,20 +89,3 @@ public class SearchDisplayActivity extends AppCompatActivity {
         List<ZooData.VertexInfo> searchList =  vertexList.search(t
 
         Log.d("tag", searchList.get(0).name);*/
-
-        this.future = backgroundThreadExecutor.submit(() -> {
-            while (true) { // TODO: change true to something that makes sense
-                runOnUiThread(() -> {
-                    adapter.setSearchListItems(searchbar.currentAnimalsFromQuery);
-                });
-                Thread.sleep(1000);
-            }
-        });
-
-
-        //Log.d("tag", searchbar.currentAnimalsFromQuery.get(0).name);
-
-
-
-    }
-}
