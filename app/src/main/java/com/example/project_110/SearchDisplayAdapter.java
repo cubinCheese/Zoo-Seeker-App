@@ -1,6 +1,5 @@
 package com.example.project_110;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,7 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
 
 
     public void setSearchListItems(List<ZooData.VertexInfo> newSearchExhibits){
-        this.searchExhibits.clear();
+        //this.searchExhibits.clear();
         this.searchExhibits=newSearchExhibits;
         notifyDataSetChanged();
     }

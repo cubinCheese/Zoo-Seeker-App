@@ -1,11 +1,11 @@
 package com.example.project_110;
 
-import com.example.project_110.ZooData.VertexInfo;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // Vertex List Class
 public class VertexList {
@@ -37,14 +37,16 @@ public class VertexList {
 
     // Implementation of search() method by tag, onto existing List of ZooData
     public List<ZooData.VertexInfo> search(String query){
-        if(searchMap.get(query) == null) return new ArrayList<>();
-
+        Set<ZooData.VertexInfo> vertices = new HashSet<>();
         for(Map.Entry<String, List<ZooData.VertexInfo>> m : searchMap.entrySet()){
-            if(m.getKey().contains(query)){
-                return searchMap.get(query);
+            System.out.println(m.getKey());
+            if(m.getKey().contains(query)) {
+                vertices.addAll(searchMap.get(m.getKey()));
             }
         }
-        return searchMap.get(query);
+        // if(searchMap.get(query) == null) return new ArrayList<>();
+
+        return new ArrayList(vertices);
     }
 
 

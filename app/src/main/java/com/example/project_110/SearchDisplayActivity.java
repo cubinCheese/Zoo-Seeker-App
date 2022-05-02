@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class SearchDisplayActivity extends AppCompatActivity {
-    SearchBar searchbar;
+        SearchBar searchbar;
 
         public RecyclerView recyclerView;
         private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
@@ -26,6 +26,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
         // initializing new Map searchable by tags // & list of vertex info
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
         VertexList vertexList = new VertexList(vInfo);
+        System.out.println(vertexList.search("bird").size());
 
         SearchView search = (SearchView) findViewById(R.id.search);
         searchbar = new SearchBar(search, vertexList);
@@ -35,7 +36,6 @@ public class SearchDisplayActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.seach_items);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-
 
         /*Map<String, ZooData.VertexInfo> indexedZooData = new HashMap();
 
@@ -66,13 +66,16 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
         String tag = "bird";
 
-        List<ZooData.VertexInfo> searchList =  vertexList.search(tag);
+        List<ZooData.VertexInfo> searchList =  vertexList.search(t
 
         Log.d("tag", searchList.get(0).name);*/
 
         this.future = backgroundThreadExecutor.submit(() -> {
             while (true) { // TODO: change true to something that makes sense
-                adapter.setSearchListItems(searchbar.currentAnimalsFromQuery);
+                runOnUiThread(() -> {
+                    adapter.setSearchListItems(searchbar.currentAnimalsFromQuery);
+                });
+                Thread.sleep(1000);
             }
         });
 

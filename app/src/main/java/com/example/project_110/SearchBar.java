@@ -15,11 +15,6 @@ public class SearchBar implements SearchView.OnQueryTextListener {
         this.search = search;
         this.vertexList = vertexList;
         currentAnimalsFromQuery = new ArrayList<ZooData.VertexInfo>();
-        List<String> grizzList = new ArrayList();
-        grizzList.add("grizzly");
-        grizzList.add("bear");
-        grizzList.add("mammal");
-        currentAnimalsFromQuery.add(new ZooData.VertexInfo("grizzly_bears", ZooData.VertexInfo.Kind.EXHIBIT, "Grizzly Bears", grizzList));
         search.setOnQueryTextListener(this);
     }
 
@@ -30,9 +25,15 @@ public class SearchBar implements SearchView.OnQueryTextListener {
 
     @Override
     public boolean onQueryTextChange(String s) {
+        if (s == "") {
+            currentAnimalsFromQuery = new ArrayList<>();
+            return false;
+        }
         this.currentQuery = s;
+        System.out.println(s);
         currentAnimalsFromQuery = vertexList.search(s);
-        return false;
+        System.out.println(currentAnimalsFromQuery.size());
+        return true;
     }
 
     public String getCurrentQuery() {
