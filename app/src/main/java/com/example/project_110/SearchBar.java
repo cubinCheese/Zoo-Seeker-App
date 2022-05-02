@@ -3,7 +3,8 @@ package com.example.project_110;
 import android.widget.SearchView;
 
 public class SearchBar implements SearchView.OnQueryTextListener {
-    private SearchView search;
+    public SearchView search;
+    private String currentQuery;
 
     public SearchBar(SearchView search) {
         this.search = search;
@@ -17,8 +18,12 @@ public class SearchBar implements SearchView.OnQueryTextListener {
 
     @Override
     public boolean onQueryTextChange(String s) {
-        System.out.println(s);
+        this.currentQuery = s;
         //PUT SEARCH METHOD HERE
         return false;
+    }
+
+    public String getCurrentQuery() {
+        return currentQuery;
     }
 }
