@@ -39,7 +39,7 @@ public class VertexList {
     public List<ZooData.VertexInfo> search(String query){
         Set<ZooData.VertexInfo> vertices = new HashSet<>();
         for(Map.Entry<String, List<ZooData.VertexInfo>> m : searchMap.entrySet()){
-            System.out.println(m.getKey());
+//            System.out.println(m.getKey());
             if(m.getKey().contains(query)) {
                 vertices.addAll(searchMap.get(m.getKey()));
             }

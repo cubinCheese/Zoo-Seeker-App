@@ -25,7 +25,7 @@ public class SearchBar implements SearchView.OnQueryTextListener {
 
     @Override
     public boolean onQueryTextChange(String s) {
-        if (s == "") {
+        if (s.equals("")) {
             currentAnimalsFromQuery = new ArrayList<>();
             return false;
         }
