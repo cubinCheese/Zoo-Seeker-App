@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 public class SearchBarUnitTest {
     @Test
     public void getsCorrectText() {
-        ActivityScenario<MainActivity> scenario = ActivityScenario.launch((MainActivity.class));
+        ActivityScenario<SearchDisplayActivity> scenario = ActivityScenario.launch((SearchDisplayActivity.class));
         scenario.moveToState(Lifecycle.State.CREATED);
         scenario.onActivity(activity -> {
             SearchView searchView = (SearchView) activity.findViewById(R.id.search);

@@ -1,24 +1,34 @@
 package com.example.project_110;
 
+import android.os.Bundle;
+import android.widget.SearchView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class SearchDisplayActivity extends AppCompatActivity {
+    SearchBar searchbar;
 
         public RecyclerView recyclerView;
+        private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+        private Future<Void> future;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_display);
+
+        // initializing new Map searchable by tags // & list of vertex info
+        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
+        VertexList vertexList = new VertexList(vInfo);
+
+        SearchView search = (SearchView) findViewById(R.id.search);
+        searchbar = new SearchBar(search, vertexList);
 
         SearchDisplayAdapter adapter = new SearchDisplayAdapter();
         adapter.setHasStableIds(true);
@@ -27,7 +37,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
 
-        Map<String, ZooData.VertexInfo> indexedZooData = new HashMap();
+        /*Map<String, ZooData.VertexInfo> indexedZooData = new HashMap();
 
         List<String> grizzList = new ArrayList();
         grizzList.add("grizzly");
@@ -58,13 +68,16 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
         List<ZooData.VertexInfo> searchList =  vertexList.search(tag);
 
-        Log.d("tag", searchList.get(0).name);
+        Log.d("tag", searchList.get(0).name);*/
+
+        this.future = backgroundThreadExecutor.submit(() -> {
+            while (true) { // TODO: change true to something that makes sense
+                adapter.setSearchListItems(searchbar.currentAnimalsFromQuery);
+            }
+        });
 
 
-        adapter.setSearchListItems(searchList);
-
-        Log.d("tag", searchList.get(0).name);
-
+        //Log.d("tag", searchbar.currentAnimalsFromQuery.get(0).name);
 
 
 
