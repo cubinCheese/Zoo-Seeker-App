@@ -8,20 +8,31 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdapter.ViewHolder> {
 
     private List<ZooData.VertexInfo> searchExhibits = Collections.emptyList();
+    private Consumer<ZooData.VertexInfo> onSearchListItemClicked;
 
-
-    public void setSearchListItems(List<ZooData.VertexInfo> newSearchExhibits){
+    public void setSearchListItems(List<VertexInfoStorable> newSearchExhibits){
         //this.searchExhibits.clear();
-        this.searchExhibits=newSearchExhibits;
+        List<ZooData.VertexInfo> unPackedDataList = new ArrayList();
+        for (VertexInfoStorable storedInfo : newSearchExhibits){
+            unPackedDataList.add(storedInfo.unPack());
+        }
+
+        this.searchExhibits=unPackedDataList;
         notifyDataSetChanged();
     }
 
+
+    public void setOnSearchListItemClickedHandlder(Consumer<ZooData.VertexInfo> onSearchListItemClicked){
+        this.onSearchListItemClicked = onSearchListItemClicked;
+    }
 
 
     @NonNull
@@ -34,6 +45,7 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
 
         return new ViewHolder(view);
     }
+
 
 
     @Override
@@ -49,20 +61,27 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        private final TextView textView;
+        private final TextView searchListItem;
         private ZooData.VertexInfo searchItem;
+        //private TextView searchListItem;
        //private final CheckBox checkBox;
 
         public ViewHolder(@NonNull View itemView){
 
             super(itemView);
-            this.textView =  itemView.findViewById(R.id.search_list_item);
+            this.searchListItem =  itemView.findViewById(R.id.search_list_item);
+            
+            this.searchListItem.setOnClickListener(view -> {
+                if(onSearchListItemClicked == null) return;
+                onSearchListItemClicked.accept(searchItem);
+            });
+            
 
         }
 
         public void setSearchItem(ZooData.VertexInfo searchItem){
             this.searchItem=searchItem;
-            this.textView.setText(searchItem.name);
+            this.searchListItem.setText(searchItem.name);
 
 
         }

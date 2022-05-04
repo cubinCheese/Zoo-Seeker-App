@@ -3,6 +3,10 @@ package com.example.project_110;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverter;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -18,7 +22,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ZooData {
+    @Entity(tableName = "selected_list_items")
     public static class VertexInfo {
+        //This is angry, figure out how to make keys if we need them
+      // @PrimaryKey(autoGenerate = true)
+
+
         public static enum Kind {
             // The SerializedName annotation tells GSON how to convert
             // from the strings in our JSON to this Enum.
@@ -33,6 +42,8 @@ public class ZooData {
         public Kind kind;
         public String name;
         public List<String> tags;
+
+
 
         public VertexInfo(String id, Kind kind, String name, List<String> tags) {
             this.id = id;
