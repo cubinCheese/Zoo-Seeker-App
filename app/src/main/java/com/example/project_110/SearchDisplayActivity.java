@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.widget.SearchView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,11 +20,14 @@ public class SearchDisplayActivity extends AppCompatActivity {
     public RecyclerView recyclerView;
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
+    private SearchListViewModel searchListViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_display);
 
+        searchListViewModel = new ViewModelProvider(this)
+                .get(SearchListViewModel.class);
         // initializing new Map searchable by tags // & list of vertex info
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
         VertexList vertexList = new VertexList(vInfo);
@@ -29,19 +35,29 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
         SearchView search = (SearchView) findViewById(R.id.search);
         searchbar = new SearchBar(search, vertexList);
-
         SearchDisplayAdapter adapter = new SearchDisplayAdapter();
         adapter.setHasStableIds(true);
+
+        searchListViewModel.getSearchListItems().observe(this, adapter::setSearchListItems);
         recyclerView = findViewById(R.id.seach_items);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter.setOnSearchListItemClickedHandlder(searchListViewModel::selectExhibit);
+
+
         recyclerView.setAdapter(adapter);
+
 
 
 
         this.future = backgroundThreadExecutor.submit(() -> {
             while (true) { // TODO: change true to something that makes sense
                 runOnUiThread(() -> {
-                    adapter.setSearchListItems(searchbar.currentAnimalsFromQuery);
+                    List<VertexInfoStorable> packedList = new ArrayList();
+                    for (ZooData.VertexInfo vertex : searchbar.currentAnimalsFromQuery){
+                        packedList.add(new VertexInfoStorable(vertex));
+                    }
+                    adapter.setSearchListItems(packedList);
                 });
                 Thread.sleep(1000);
             }
