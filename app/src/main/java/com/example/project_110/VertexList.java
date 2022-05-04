@@ -1,9 +1,11 @@
 package com.example.project_110;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,13 +27,14 @@ public class VertexList {
                 if(searchMap.get(s) == null){
                     List<ZooData.VertexInfo> newList = new ArrayList<>();
                     newList.add(info);
-                    searchMap.put(s, newList);
+                    searchMap.put(s.toLowerCase(), newList);
                 }
                 else{
-                    searchMap.get(s).add(info);
+                    searchMap.get(s.toLowerCase()).add(info);
                 }
 
             }
+            searchMap.put(m.getValue().name.toLowerCase(), new ArrayList<>(Arrays.asList(m.getValue())));
         }
     }
 
@@ -39,8 +42,8 @@ public class VertexList {
     public List<ZooData.VertexInfo> search(String query){
         Set<ZooData.VertexInfo> vertices = new HashSet<>();
         for(Map.Entry<String, List<ZooData.VertexInfo>> m : searchMap.entrySet()){
-//            System.out.println(m.getKey());
-            if(m.getKey().contains(query)) {
+            System.out.println(m.getKey());
+            if(m.getKey().contains(query.toLowerCase()) || query.equals(m.getKey())) {
                 vertices.addAll(searchMap.get(m.getKey()));
             }
         }
