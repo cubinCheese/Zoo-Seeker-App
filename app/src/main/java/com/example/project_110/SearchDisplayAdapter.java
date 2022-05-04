@@ -1,10 +1,12 @@
 package com.example.project_110;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -77,6 +79,8 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
             
             this.searchListItem.setOnClickListener(view -> {
                 if(onSearchListItemClicked == null) return;
+                searchListItem.setBackgroundColor(Color.YELLOW);
+                searchListItem.setAllCaps(true);
                 onSearchListItemClicked.accept(searchItem);
             });
             
