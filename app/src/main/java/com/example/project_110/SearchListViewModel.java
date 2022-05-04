@@ -28,7 +28,7 @@ public class SearchListViewModel  extends  AndroidViewModel{
         if (searchListItems == null){
             loadUsers();
 
-        }
+       }
         return searchListItems;
     }
 

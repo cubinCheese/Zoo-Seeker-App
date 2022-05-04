@@ -1,7 +1,9 @@
 package com.example.project_110;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -38,14 +40,18 @@ public class SearchDisplayActivity extends AppCompatActivity {
         SearchDisplayAdapter adapter = new SearchDisplayAdapter();
         adapter.setHasStableIds(true);
 
-        searchListViewModel.getSearchListItems().observe(this, adapter::setSearchListItems);
-        recyclerView = findViewById(R.id.seach_items);
+        //EVIL LINE OF CODE BELOW
+        //searchListViewModel.getSearchListItems().observe(this, adapter::setSearchListItems);
+
+        recyclerView = findViewById(R.id.search_items);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         adapter.setOnSearchListItemClickedHandlder(searchListViewModel::selectExhibit);
 
 
         recyclerView.setAdapter(adapter);
+
 
 
 
@@ -59,7 +65,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
                     }
                     adapter.setSearchListItems(packedList);
                 });
-                Thread.sleep(1000);
+                Thread.sleep(100);
             }
         });
 

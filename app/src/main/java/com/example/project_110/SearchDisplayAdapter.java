@@ -20,7 +20,11 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
 
     public void setSearchListItems(List<VertexInfoStorable> newSearchExhibits){
         //this.searchExhibits.clear();
+
+
         List<ZooData.VertexInfo> unPackedDataList = new ArrayList();
+
+
         for (VertexInfoStorable storedInfo : newSearchExhibits){
             unPackedDataList.add(storedInfo.unPack());
         }
