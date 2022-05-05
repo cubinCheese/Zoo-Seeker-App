@@ -68,7 +68,7 @@ public class VertexListTest {
     public void test_makeMap() {
         VertexList vertexList = new VertexList(indexedZooData);
         assertNotNull(vertexList.searchMap);
-        assertEquals(9, vertexList.searchMap.size());               // checking if built Map includes all generated components within vList
+        assertEquals(13, vertexList.searchMap.size());               // checking if built Map includes all generated components within vList
         assertEquals(2, vertexList.searchMap.get("bird").size());   // checking if "bird" vertex has valid size
     }
 
