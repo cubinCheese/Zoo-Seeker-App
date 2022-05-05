@@ -85,19 +85,24 @@ public class ZooData {
 
     }
 
-    public static Map<String, ZooData.EdgeInfo> loadEdgeInfoJSON(String path) {
-        InputStream inputStream = MainActivity.class.getClassLoader().getResourceAsStream(path);
-        Reader reader = new InputStreamReader(inputStream);
+    public static Map<String, ZooData.EdgeInfo> loadEdgeInfoJSON(Context context, String path) {
+        try{
+            InputStream inputStream = context.getAssets().open(path);
+            Reader reader = new InputStreamReader(inputStream);
 
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<ZooData.EdgeInfo>>(){}.getType();
-        List<ZooData.EdgeInfo> zooData = gson.fromJson(reader, type);
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<ZooData.EdgeInfo>>(){}.getType();
+            List<ZooData.EdgeInfo> zooData = gson.fromJson(reader, type);
 
-        Map<String, ZooData.EdgeInfo> indexedZooData = zooData
-                .stream()
-                .collect(Collectors.toMap(v -> v.id, datum -> datum));
+            Map<String, ZooData.EdgeInfo> indexedZooData = zooData
+                    .stream()
+                    .collect(Collectors.toMap(v -> v.id, datum -> datum));
+            return indexedZooData;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return (Map<String, ZooData.EdgeInfo>) Collections.emptyList();
+        }
 
-        return indexedZooData;
     }
 
     public static Graph<String, IdentifiedWeightedEdge> loadZooGraphJSON(String path) {
