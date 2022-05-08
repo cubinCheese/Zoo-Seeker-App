@@ -79,7 +79,7 @@ public class SearchListViewModel  extends  AndroidViewModel{
 
 
     public List<VertexInfoStorable> getSelectedExhibits(){
-        Log.d("message", "Selecting All..." );
+        //Log.d("message", "Selecting All..." );
 
         return vertexInfoStorableDao.getAll();
     }
