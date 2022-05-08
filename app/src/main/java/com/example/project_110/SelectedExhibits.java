@@ -6,13 +6,13 @@ import java.util.List;
 
 public class SelectedExhibits {
 
-    List<ZooData.VertexInfo> selectedExhibits;
+    List<VertexInfoStorable> selectedExhibits;
 
     public SelectedExhibits(){
         selectedExhibits = new ArrayList<>();
     }
 
-    public SelectedExhibits(List<ZooData.VertexInfo> selectedExhibits){
+    public SelectedExhibits(List<VertexInfoStorable> selectedExhibits){
         this.selectedExhibits=selectedExhibits;
     }
 

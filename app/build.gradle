@@ -8,6 +8,7 @@ android {
     defaultConfig {
         applicationId "com.example.project_110"
         minSdk 28
+
         targetSdk 31
         versionCode 1
         versionName "1.0"
@@ -26,12 +27,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
 }
+
 
 dependencies {
     def gson_version= "2.9.0"

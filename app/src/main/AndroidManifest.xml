@@ -9,14 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Project_110">
+
         <activity
-            android:name=".FirstNewExhibitActivity"
+            android:name=".PlanActivity"
             android:exported="false" />
         <activity
             android:name=".SearchDisplayActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SearchActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
