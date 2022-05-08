@@ -1,5 +1,6 @@
 package com.example.project_110;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -7,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.jgrapht.Graph;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlanActivity extends AppCompatActivity {
@@ -29,8 +31,8 @@ public class PlanActivity extends AppCompatActivity {
 
     public void onDirectionsButtonClick(View view) {
         /** Here's some starter code for you :) */
-        // Intent intent = new Intent(this, DirectionsActivity.class); <- Make this activity name whatever you want
-        // intent.putParcelableArrayListExtra("shortestVertexOrder", (ArrayList<VertexInfoStorable>) shortestVertexOrder);
-        // startActivity(intent);
+         Intent intent = new Intent(this, FirstNewExhibitActivity.class);
+         intent.putParcelableArrayListExtra("shortestVertexOrder", (ArrayList<VertexInfoStorable>) shortestVertexOrder);
+         startActivity(intent);
     }
 }
