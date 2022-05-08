@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jgrapht.Graph;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,10 @@ public class SearchDisplayActivity extends AppCompatActivity {
         searchListViewModel = new ViewModelProvider(this)
                 .get(SearchListViewModel.class);
         // initializing new Map searchable by tags // & list of vertex info
+        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
+
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
+        Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "sample_edge_info.json");
         VertexList vertexList = new VertexList(vInfo);
 //        System.out.println(vertexList.search("bird").size());
 
@@ -51,9 +56,6 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
 
         recyclerView.setAdapter(adapter);
-
-
-
 
 
         this.future = backgroundThreadExecutor.submit(() -> {

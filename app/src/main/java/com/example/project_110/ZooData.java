@@ -105,7 +105,7 @@ public class ZooData {
 
     }
 
-    public static Graph<String, IdentifiedWeightedEdge> loadZooGraphJSON(String path) {
+    public static Graph<String, IdentifiedWeightedEdge> loadZooGraphJSON(Context context, String path) {
         // Create an empty graph to populate.
         Graph<String, IdentifiedWeightedEdge> g = new DefaultUndirectedWeightedGraph<>(IdentifiedWeightedEdge.class);
 
@@ -121,12 +121,15 @@ public class ZooData {
         importer.addEdgeAttributeConsumer(IdentifiedWeightedEdge::attributeConsumer);
 
         // On Android, you would use context.getAssets().open(path) here like in Lab 5.
-        InputStream inputStream = MainActivity.class.getClassLoader().getResourceAsStream(path);
-        Reader reader = new InputStreamReader(inputStream);
-
-        // And now we just import it!
-        importer.importGraph(g, reader);
-
-        return g;
+        try{
+            InputStream inputStream = context.getAssets().open(path);
+            Reader reader = new InputStreamReader(inputStream);
+            // And now we just import it!
+            importer.importGraph(g, reader);
+            return g;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new DefaultUndirectedWeightedGraph<>(IdentifiedWeightedEdge.class);
+        }
     }
 }
