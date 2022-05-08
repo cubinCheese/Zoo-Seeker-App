@@ -43,4 +43,17 @@
         app:layout_constraintBottom_toTopOf="@id/search"
         tools:layout_editor_absoluteY="19dp" />
 
+    <Button
+        android:id="@+id/plan_btn"
+        android:layout_width="151dp"
+        android:layout_height="48dp"
+        android:text="Plan"
+        android:backgroundTint="#2BB0A2"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/search"
+        app:layout_constraintHorizontal_bias="0.049"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
