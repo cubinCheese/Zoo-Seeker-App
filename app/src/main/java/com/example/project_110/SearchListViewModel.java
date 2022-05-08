@@ -13,6 +13,7 @@ import java.util.List;
 
 public class SearchListViewModel  extends  AndroidViewModel{
 
+    //Get Lis
 
     private LiveData<List<VertexInfoStorable>> searchListItems;
     private final VertexInfoStorableDao vertexInfoStorableDao;
@@ -73,6 +74,15 @@ public class SearchListViewModel  extends  AndroidViewModel{
 
 
 
+
+
+    }
+
+
+    public List<VertexInfoStorable> getSelectedExhibits(){
+        Log.d("message", "Selecting All..." );
+
+        return vertexInfoStorableDao.getAll();
     }
     /*
     public void deleteExhibit(ZooData.VertexInfo todoListItem){
