@@ -20,7 +20,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class SearchDisplayActivity extends AppCompatActivity {
+
+    //Get selected exhibits with this
+
     SearchBar searchbar;
+    TextView selectedDisplayCount;
     public RecyclerView recyclerView;
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
@@ -29,7 +33,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_display);
-
+        selectedDisplayCount = findViewById(R.id.selected_exhibit_count);
         searchListViewModel = new ViewModelProvider(this)
                 .get(SearchListViewModel.class);
         // initializing new Map searchable by tags // & list of vertex info
@@ -54,9 +58,10 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
         adapter.setOnSearchListItemClickedHandlder(searchListViewModel::selectExhibit);
 
+        //Log.d("Exhibit Stats", getSelectedExhibitsList().get(1).name + " " + getSelectedExhibitsList().size());
+
 
         recyclerView.setAdapter(adapter);
-
 
         this.future = backgroundThreadExecutor.submit(() -> {
             while (true) { // TODO: change true to something that makes sense
@@ -65,11 +70,15 @@ public class SearchDisplayActivity extends AppCompatActivity {
                     for (ZooData.VertexInfo vertex : searchbar.currentAnimalsFromQuery){
                         packedList.add(new VertexInfoStorable(vertex));
                     }
+                   //this.selectedDisplayCount.setText(getSelectedExhibitsList().size());
                     adapter.setSearchListItems(packedList);
+                    selectedDisplayCount.setText("Selected Exhibits: " + getSelectedExhibitsList().size());
                 });
                 Thread.sleep(100);
             }
         });
+
+
 
 
         //Log.d("tag", searchbar.currentAnimalsFromQuery.get(0).name);
@@ -77,6 +86,14 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
 
     }
+
+        //Call this to get list of selected exhibits
+    public List<VertexInfoStorable> getSelectedExhibitsList(){
+        return searchListViewModel.getSelectedExhibits();
+    }
+
+
+
 }
 
 

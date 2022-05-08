@@ -20,8 +20,9 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
     private List<ZooData.VertexInfo> searchExhibits = Collections.emptyList();
     private Consumer<ZooData.VertexInfo> onSearchListItemClicked;
 
+
     public void setSearchListItems(List<VertexInfoStorable> newSearchExhibits){
-        //this.searchExhibits.clear();
+        this.searchExhibits.clear();
 
 
         List<ZooData.VertexInfo> unPackedDataList = new ArrayList();
@@ -48,7 +49,6 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.search_display_item, parent, false);
-
         return new ViewHolder(view);
     }
 
@@ -69,6 +69,7 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
     public class ViewHolder extends RecyclerView.ViewHolder{
         private final TextView searchListItem;
         private ZooData.VertexInfo searchItem;
+       // private TextView selectedExhibitCount;
         //private TextView searchListItem;
        //private final CheckBox checkBox;
 
@@ -76,13 +77,18 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
 
             super(itemView);
             this.searchListItem =  itemView.findViewById(R.id.search_list_item);
+            //this.selectedExhibitCount = itemView.findViewById(R.id.selected_exhibit_count);
             
             this.searchListItem.setOnClickListener(view -> {
                 if(onSearchListItemClicked == null) return;
                 searchListItem.setBackgroundColor(Color.YELLOW);
                 searchListItem.setAllCaps(true);
                 onSearchListItemClicked.accept(searchItem);
+
             });
+
+
+
             
 
         }
