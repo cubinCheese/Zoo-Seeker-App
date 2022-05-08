@@ -50,6 +50,7 @@
         android:text="Plan"
         android:backgroundTint="#2BB0A2"
         android:textColor="@color/black"
+        android:onClick="onPlanButtonClick"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/search"
         app:layout_constraintHorizontal_bias="0.049"

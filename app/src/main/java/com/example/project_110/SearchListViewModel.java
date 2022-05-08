@@ -22,7 +22,6 @@ public class SearchListViewModel  extends  AndroidViewModel{
         Context context = getApplication().getApplicationContext();
         VertexDatabase db = VertexDatabase.getSingleton(context);
         vertexInfoStorableDao = db.vertexInfoDao();
-
     }
 
     public  LiveData<List<VertexInfoStorable>> getSearchListItems(){

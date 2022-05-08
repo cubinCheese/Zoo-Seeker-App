@@ -1,19 +1,30 @@
 package com.example.project_110;
 
-import androidx.annotation.NonNull;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.sql.Array;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 @Entity(tableName = "selected_list_items")
-public class VertexInfoStorable {
+public class VertexInfoStorable implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     public long id1 =0;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+    }
 
     public static enum Kind {
         // The SerializedName annotation tells GSON how to convert

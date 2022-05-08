@@ -16,6 +16,9 @@ public interface VertexInfoStorableDao {
     @Query("SELECT * FROM 'selected_list_items' WHERE 'id'=:id")
     VertexInfoStorable get(long id);
 
+    @Query("SELECT * FROM 'selected_list_items' WHERE 'name'=:name")
+    VertexInfoStorable get(String name);
+
     @Query("SELECT * FROM 'selected_list_items' ORDER BY 'order'")
     List<VertexInfoStorable> getAll();
 
