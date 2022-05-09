@@ -44,7 +44,6 @@ public class SearchDisplayActivity extends AppCompatActivity {
                 .get(SearchListViewModel.class);
         // initializing new Map searchable by tags // & list of vertex info
         Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
-
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
         Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "sample_edge_info.json");
         VertexList vertexList = new VertexList(vInfo);

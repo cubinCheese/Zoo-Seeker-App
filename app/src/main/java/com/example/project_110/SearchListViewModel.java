@@ -80,12 +80,9 @@ public class SearchListViewModel  extends  AndroidViewModel{
             Log.d("add message", selectedVertex.name + " is already in the list." );
         }
 
-
-
-
-
-
     }
+
+
 
 
     public List<VertexInfoStorable> getSelectedExhibits(){
