@@ -22,6 +22,15 @@ public class SearchListViewModel  extends  AndroidViewModel{
         vertexInfoStorableDao = db.vertexInfoDao();
     }
 
+    public void clearSelectedExhibits(){
+        Context context = getApplication().getApplicationContext();
+        context.deleteDatabase("select_list.db");
+        for(VertexInfoStorable i: getSelectedExhibits()){
+            vertexInfoStorableDao.delete(i);
+        }
+        Log.d("size should be 0, but it is", "" + getSelectedExhibits().size());
+    }
+
     public  LiveData<List<VertexInfoStorable>> getSearchListItems(){
         if (searchListItems == null){
             loadUsers();
@@ -67,12 +76,9 @@ public class SearchListViewModel  extends  AndroidViewModel{
             Log.d("add message", selectedVertex.name + " is already in the list." );
         }
 
-
-
-
-
-
     }
+
+
 
 
     public List<VertexInfoStorable> getSelectedExhibits(){

@@ -81,8 +81,9 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
             
             this.searchListItem.setOnClickListener(view -> {
                 if(onSearchListItemClicked == null) return;
-//                searchListItem.setBackgroundColor(Color.YELLOW);
-//                searchListItem.setAllCaps(true);
+
+               /* searchListItem.setBackgroundColor(Color.YELLOW);
+                searchListItem.setAllCaps(true);*/
                 onSearchListItemClicked.accept(searchItem);
 
             });
