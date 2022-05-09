@@ -28,7 +28,7 @@ public abstract class VertexDatabase extends RoomDatabase{
     }
     private static VertexDatabase makeDatabase(Context context){
        // context.deleteDatabase("select_list.db");
-        Log.d("test msg", "did we get here?");
+        //Log.d("test msg", "did we get here?");
         return Room.databaseBuilder(context, VertexDatabase.class, "select_list.db")
 
                 .allowMainThreadQueries()

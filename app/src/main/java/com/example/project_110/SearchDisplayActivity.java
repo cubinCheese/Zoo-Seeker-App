@@ -1,7 +1,10 @@
 package com.example.project_110;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -25,6 +28,8 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
     SearchBar searchbar;
     TextView selectedDisplayCount;
+    Button clearSelectedButton;
+
     public RecyclerView recyclerView;
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
@@ -34,6 +39,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_display);
         selectedDisplayCount = findViewById(R.id.selected_exhibit_count);
+        clearSelectedButton = findViewById(R.id.clear_selected_button);
         searchListViewModel = new ViewModelProvider(this)
                 .get(SearchListViewModel.class);
         // initializing new Map searchable by tags // & list of vertex info
@@ -48,7 +54,11 @@ public class SearchDisplayActivity extends AppCompatActivity {
         searchbar = new SearchBar(search, vertexList);
         SearchDisplayAdapter adapter = new SearchDisplayAdapter();
         adapter.setHasStableIds(true);
+        this.clearSelectedButton.setOnClickListener(view -> {
+            Log.d("clear pressed", "thing should happen");
+           searchListViewModel.clearSelectedExhibits();
 
+        });
         //EVIL LINE OF CODE BELOW
         //searchListViewModel.getSearchListItems().observe(this, adapter::setSearchListItems);
 
@@ -62,6 +72,9 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
 
         recyclerView.setAdapter(adapter);
+
+
+
 
         this.future = backgroundThreadExecutor.submit(() -> {
             while (true) { // TODO: change true to something that makes sense
