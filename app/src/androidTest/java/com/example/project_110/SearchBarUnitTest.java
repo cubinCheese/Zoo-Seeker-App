@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class SearchBarUnitTest {
+
     @Test
     public void getsCorrectText() {
         ActivityScenario<SearchDisplayActivity> scenario = ActivityScenario.launch((SearchDisplayActivity.class));

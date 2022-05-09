@@ -23,6 +23,9 @@ public class VertexList {
     private void makeMap(){
         for(Map.Entry<String, ZooData.VertexInfo> m : nodeList.entrySet()){
             ZooData.VertexInfo info = m.getValue();
+            if(!info.kind.equals(ZooData.VertexInfo.Kind.EXHIBIT)) {        // exclude vertex nodes with non-"Exhibit" tags
+                continue;
+            }
             for(String s : info.tags){
                 if(searchMap.get(s) == null){
                     List<ZooData.VertexInfo> newList = new ArrayList<>();
@@ -46,6 +49,7 @@ public class VertexList {
             if(m.getKey().contains(query.toLowerCase()) || query.equals(m.getKey())) {
                 vertices.addAll(searchMap.get(m.getKey()));
             }
+
         }
         // if(searchMap.get(query) == null) return new ArrayList<>();
 
