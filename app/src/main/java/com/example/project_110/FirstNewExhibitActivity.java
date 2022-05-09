@@ -37,10 +37,20 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
 //        for (IdentifiedWeightedEdge v : g.edgeSet())
 //            System.out.println(g.getEdgeSource(v)+"--->"+g.getEdgeTarget(v));
         counter = 0;
-        String start = shortestVertexOrder.get(counter++).id;
-        counter+=1;
+        // System.out.println(shortestVertexOrder.size());
+        /*
+        System.out.println("---------------------------------");
+        System.out.println(shortestVertexOrder.get(0));
+        System.out.println("---------------------------------");
+        System.out.println(shortestVertexOrder.get(1));
+        System.out.println("---------------------------------");
+        System.out.println(shortestVertexOrder.get(2));
+        */
+        String start = shortestVertexOrder.get(counter).id;
+        counter +=1;
         String next = shortestVertexOrder.get(counter).id;
 
+        // generate shortest path from start to first exhibit
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, start, next);
         int i = 1;
         directionsList = new ArrayList<>();
@@ -73,16 +83,28 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, start, next);
         int i = 1;
-//        directionsList = new ArrayList<>();
+
+        String currVertex = start;
+
         for (IdentifiedWeightedEdge e : path.getEdgeList()) {
+            ZooData.VertexInfo source = vInfo.get(g.getEdgeSource(e).toString());
+            ZooData.VertexInfo target = vInfo.get(g.getEdgeTarget(e).toString());
+            if (currVertex.equals(vInfo.get(g.getEdgeTarget(e).toString()).id)) {
+                //swap print statement
+                ZooData.VertexInfo temp = target;
+                target = source;
+                source = temp;
+            }
+
             String direction = String.format("  %d. Walk %.0f meters along %s from '%s' to '%s'.\n",
                     i,
                     g.getEdgeWeight(e),
                     eInfo.get(e.getId()).street,
-                    vInfo.get(g.getEdgeSource(e).toString()).name,
-                    vInfo.get(g.getEdgeTarget(e).toString()).name);
+                    source.name,
+                    target.name);
             i++;
             directionsList.add(direction);
+            currVertex = target.id;
         }
         adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, directionsList);
         ListView listView = (ListView) findViewById(R.id.directions_list);

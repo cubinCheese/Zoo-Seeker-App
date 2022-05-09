@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SearchListViewModel  extends  AndroidViewModel{
 
-    //Get Lis
+    //Get List
 
     private LiveData<List<VertexInfoStorable>> searchListItems;
     private final VertexInfoStorableDao vertexInfoStorableDao;

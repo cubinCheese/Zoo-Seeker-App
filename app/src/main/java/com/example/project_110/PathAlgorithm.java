@@ -20,7 +20,7 @@ public class PathAlgorithm {
         shortestExhibitOrder.add(start);
 
         while (!unvisitedSelectedExhibits.isEmpty()) {
-            //dijkstras to find nearest neighbor from start
+            // Dijkstra's to find nearest neighbor from start
             HashMap<String, Double> distances = new HashMap<>();
             for (String s : g.vertexSet())
                 distances.put(s, Double.MAX_VALUE);
