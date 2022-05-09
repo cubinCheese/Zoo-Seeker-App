@@ -1,7 +1,8 @@
 package com.example.project_110;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -37,7 +38,6 @@ public class SearchDisplayActivity extends AppCompatActivity {
         searchListViewModel = new ViewModelProvider(this)
                 .get(SearchListViewModel.class);
         // initializing new Map searchable by tags // & list of vertex info
-        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
 
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
         Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "sample_edge_info.json");
@@ -78,11 +78,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
             }
         });
 
-
-
-
         //Log.d("tag", searchbar.currentAnimalsFromQuery.get(0).name);
-
 
 
     }
@@ -92,8 +88,11 @@ public class SearchDisplayActivity extends AppCompatActivity {
         return searchListViewModel.getSelectedExhibits();
     }
 
-
-
+    public void onPlanButtonClick(View view) {
+        Intent intent = new Intent(this, PlanActivity.class);
+        intent.putParcelableArrayListExtra("selectedExhibitsList", (ArrayList<VertexInfoStorable>) getSelectedExhibitsList());
+        startActivity(intent);
+    }
 }
 
 

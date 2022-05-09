@@ -13,8 +13,6 @@ import java.util.List;
 
 public class SearchListViewModel  extends  AndroidViewModel{
 
-    //Get Lis
-
     private LiveData<List<VertexInfoStorable>> searchListItems;
     private final VertexInfoStorableDao vertexInfoStorableDao;
     public SearchListViewModel(@NonNull Application application){
@@ -22,13 +20,11 @@ public class SearchListViewModel  extends  AndroidViewModel{
         Context context = getApplication().getApplicationContext();
         VertexDatabase db = VertexDatabase.getSingleton(context);
         vertexInfoStorableDao = db.vertexInfoDao();
-
     }
 
     public  LiveData<List<VertexInfoStorable>> getSearchListItems(){
         if (searchListItems == null){
             loadUsers();
-
        }
         return searchListItems;
     }
@@ -80,7 +76,7 @@ public class SearchListViewModel  extends  AndroidViewModel{
 
 
     public List<VertexInfoStorable> getSelectedExhibits(){
-        Log.d("message", "Selecting All..." );
+        //Log.d("message", "Selecting All..." );
 
         return vertexInfoStorableDao.getAll();
     }
