@@ -13,8 +13,6 @@ import java.util.List;
 
 public class SearchListViewModel  extends  AndroidViewModel{
 
-    //Get List
-
     private LiveData<List<VertexInfoStorable>> searchListItems;
     private final VertexInfoStorableDao vertexInfoStorableDao;
     public SearchListViewModel(@NonNull Application application){
@@ -27,7 +25,6 @@ public class SearchListViewModel  extends  AndroidViewModel{
     public  LiveData<List<VertexInfoStorable>> getSearchListItems(){
         if (searchListItems == null){
             loadUsers();
-
        }
         return searchListItems;
     }
