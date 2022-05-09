@@ -50,7 +50,7 @@ public class DataBaseTest {
 
         assertNotEquals(id1, id2);
     }
-
+/*
     @Test
     public void testGet(){
         VertexInfoStorable insertedItem = new VertexInfoStorable(
@@ -93,7 +93,7 @@ public class DataBaseTest {
         assertEquals(1,itemsDeleted);
         assertNull(dao.get(id));
     }
-
+*/
 
 
 }
