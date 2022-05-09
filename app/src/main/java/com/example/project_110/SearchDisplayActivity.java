@@ -1,5 +1,6 @@
 package com.example.project_110;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -103,7 +104,11 @@ public class SearchDisplayActivity extends AppCompatActivity {
     public List<VertexInfoStorable> getSelectedExhibitsList(){
         return searchListViewModel.getSelectedExhibits();
     }
-
+    public void onPlanButtonClick(View view) {
+        Intent intent = new Intent(this, PlanActivity.class);
+        intent.putParcelableArrayListExtra("selectedExhibitsList", (ArrayList<VertexInfoStorable>) getSelectedExhibitsList());
+        startActivity(intent);
+    }
 
 
 }
