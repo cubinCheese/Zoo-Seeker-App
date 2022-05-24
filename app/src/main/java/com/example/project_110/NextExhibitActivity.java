@@ -142,12 +142,17 @@ public class NextExhibitActivity extends AppCompatActivity {
         Integer tL_IDsize = temp_List_ofID.size();
         for (int i=0; i<tL_IDsize; i++) {
             String toCheck = temp_List_ofID.get(i); // check if string is within any list
+            List<Integer> tempStrList = new ArrayList<Integer>();
             for (int j=0; j<tL_IDsize; j++) {
-                if (toCheck != temp_List_ofID.get(j))
-
-                    temp_List_ofList.add(i);
+                if (toCheck == temp_List_ofID.get(j)) { // found duplicate
+                    // add duplicate's index to list of lists
+                    tempStrList.add(j);
+                }
             }
+            temp_List_ofList.add(tempStrList);  // add all indicies of unique string to list of lists
         }
+
+        // now: go through detailed directions list instance, group them by identifiers
     }
 
 } // end of nextBtnClk
