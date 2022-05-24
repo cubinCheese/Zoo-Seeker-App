@@ -126,12 +126,12 @@ public class NextExhibitActivity extends AppCompatActivity {
         List<List<Integer>> temp_List_ofList = new ArrayList<List<Integer>>();
 
         // declare list -- algo goes here
-        for (String elemStr : detailed_Directions_List) {
+        for (String elemStr : detailed_Directions_List) { // make callable function
 
             // extract startIndex [this substr] endIndex
             int startIndex = elemStr.indexOf("along")+6; // starting index of string ("along")
                                                          // offset 5 for 'along', offset 1 for space
-            int endIndex = elemStr.indexOf("from");      // ending index of string ("from")
+            int endIndex = elemStr.indexOf(" from");      // ending index of string ("from")
             String str_ID = elemStr.substring(startIndex, endIndex); // along [str_ID]
 
             temp_List_ofID.add(str_ID);
@@ -153,6 +153,59 @@ public class NextExhibitActivity extends AppCompatActivity {
         }
 
         // now: go through detailed directions list instance, group them by identifiers
+        for (List<Integer> intList : temp_List_ofList) { // loop through list of <lists>
+            if (intList.size() > 1) {                    // if there are duplicates
+                String myStrA = "";
+                for (int i = 0; i < intList.size(); i++) { // go through current <list>
+                    // at the indices within <list> // @ detailed directions list of that index
+                    // combine the first occurrence and the last occurrence
+                    String toModify = detailed_Directions_List.get(i);
+
+                    // take out from A to B
+                    // on first element of list // isolate substr from [this] to
+                    if (i==0) {
+
+                        int startIndex = toModify.indexOf("from")+5;
+                        int endIndex = toModify.indexOf(" to");
+                        myStrA = toModify.substring(startIndex,endIndex);
+
+                    } // will modify into last element of list
+
+                    if (i==intList.size()-1) { // on last loop iteration
+
+                        int startIndex = toModify.indexOf("from")+5;
+                        int endIndex = toModify.indexOf(" to");
+                        String myStrA_toReplace = toModify.substring(startIndex,endIndex);
+
+                        String updateWith = detailed_Directions_List.get(intList.get(i)).replace(myStrA_toReplace,myStrA);
+                        detailed_Directions_List.set(intList.get(i),updateWith); // intList.get(i) should actually be static -- last index
+                    }
+
+                } // by here, we've modified the detailed_directions_lists "from A to B"
+                int sum = 0; // running sum of meters // condensing into one card
+                // want to merge the sum of X meters, and remove unwanted directions cards
+                for (Integer i : intList) {
+                    String toModify = detailed_Directions_List.get(i);
+
+                    int startIndex = detailed_Directions_List.indexOf("Walk ");
+                    int endIndex = detailed_Directions_List.indexOf(" meters");
+                    String strMeters = toModify.substring(startIndex,endIndex);
+                    int intMeters = Integer.parseInt(strMeters); // convert to integer
+
+                    sum = sum + intMeters;
+                }
+
+
+            }
+
+            /*
+            else // List only has one index // don't need to combine any directions cards // is a unique directions card
+                continue
+
+             */
+
+            detailed_Directions_List
+        }
     }
 
 } // end of nextBtnClk
