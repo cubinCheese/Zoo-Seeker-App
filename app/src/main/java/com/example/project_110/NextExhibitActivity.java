@@ -120,9 +120,10 @@ public class NextExhibitActivity extends AppCompatActivity {
     public void setBrief_Directions_List(List<String> brief_Directions_List) {
         this.brief_Directions_List = brief_Directions_List;
 
-        List<String> temp_List_ofID; // ordering parallels detailed_Directions_List
-                                     // temp list of lists of indicies
-        List<List<int>> temp_List_ofList; // groups indicies of temp_list_ofIDs, by IDs
+        List<String> temp_List_ofID = new ArrayList<>(); // ordering parallels detailed_Directions_List
+                                                         // temp list of lists of indicies
+        // groups indicies of temp_list_ofIDs, by IDs
+        List<List<Integer>> temp_List_ofList = new ArrayList<List<Integer>>();
 
         // declare list -- algo goes here
         for (String elemStr : detailed_Directions_List) {
@@ -133,9 +134,19 @@ public class NextExhibitActivity extends AppCompatActivity {
             int endIndex = elemStr.indexOf("from");      // ending index of string ("from")
             String str_ID = elemStr.substring(startIndex, endIndex); // along [str_ID]
 
-            temp_List_ofID.add("")
-            temp_List_ofList
-            if (str_ID)
+            temp_List_ofID.add(str_ID);
+        }
+        // for (String str_ID : temp_List_ofID)
+        // have: [A,B,A,A,C]
+        // want: [[0],[1],[2,3],[4]]
+        Integer tL_IDsize = temp_List_ofID.size();
+        for (int i=0; i<tL_IDsize; i++) {
+            String toCheck = temp_List_ofID.get(i); // check if string is within any list
+            for (int j=0; j<tL_IDsize; j++) {
+                if (toCheck != temp_List_ofID.get(j))
+
+                    temp_List_ofList.add(i);
+            }
         }
     }
 
