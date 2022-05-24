@@ -28,7 +28,7 @@ public class SearchListViewModel  extends  AndroidViewModel{
         for(VertexInfoStorable i: getSelectedExhibits()){
             vertexInfoStorableDao.delete(i);
         }
-        Log.d("size should be 0, but it is", "" + getSelectedExhibits().size());
+        //Log.d("size should be 0, but it is", "" + getSelectedExhibits().size());
     }
 
     public  LiveData<List<VertexInfoStorable>> getSearchListItems(){
