@@ -37,7 +37,7 @@ public class PlanActivity extends AppCompatActivity {
 
     public void onDirectionsButtonClick(View view) {
          /* Here's some starter code for you :) */
-         Intent intent = new Intent(this, FirstNewExhibitActivity.class);
+         Intent intent = new Intent(this, NextExhibitActivity.class);
          intent.putParcelableArrayListExtra("shortestVertexOrder", (ArrayList<VertexInfoStorable>) shortestVertexOrder);
          startActivity(intent);
     }
