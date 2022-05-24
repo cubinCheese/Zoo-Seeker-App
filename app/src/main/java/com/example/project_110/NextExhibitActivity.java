@@ -25,6 +25,7 @@ public class NextExhibitActivity extends AppCompatActivity {
     private Map<String, ZooData.EdgeInfo> eInfo;
     private Graph<String, IdentifiedWeightedEdge> g;
     private int counter;
+    private String elemStr;
 
     // brief directions list constructor
     public NextExhibitActivity(List<String> brief_directions_list) {
@@ -116,12 +117,28 @@ public class NextExhibitActivity extends AppCompatActivity {
         return brief_Directions_List;
     }
 
-    public void findSubStr(String start, int offset, String end) {
-        // input: string, offset, string,
+    public String findSubStr(String start, int offset, String end, String toExtractFrom) {
+        // input: string, offset, string, (String to take from) <-- can refactor as class
         // output: substr from string to string (exclusive)
         // called on: a string
 
+        // this.elemStr = elemStr;
 
+        // extract startIndex [this substr] endIndex
+        int startIndex = toExtractFrom.indexOf(start)+offset; // starting index of string ("along")
+        // offset 5 for 'along', offset 1 for space
+        int endIndex = toExtractFrom.indexOf(" "+end);         // ending index of string ("from")
+        String str_ID = toExtractFrom.substring(startIndex, endIndex); // along [str_ID]
+
+        /*
+        // extract startIndex [this substr] endIndex
+        int startIndex = elemStr.indexOf("along")+6; // starting index of string ("along")
+        // offset 5 for 'along', offset 1 for space
+        int endIndex = elemStr.indexOf(" from");      // ending index of string ("from")
+        String str_ID = elemStr.substring(startIndex, endIndex); // along [str_ID]
+         */
+
+        return str_ID;
     }
 
     // setter for brief directions list
@@ -136,11 +153,13 @@ public class NextExhibitActivity extends AppCompatActivity {
         // declare list -- algo goes here
         for (String elemStr : detailed_Directions_List) { // make callable function
 
+            /*
             // extract startIndex [this substr] endIndex
             int startIndex = elemStr.indexOf("along")+6; // starting index of string ("along")
                                                          // offset 5 for 'along', offset 1 for space
             int endIndex = elemStr.indexOf(" from");      // ending index of string ("from")
-            String str_ID = elemStr.substring(startIndex, endIndex); // along [str_ID]
+            */
+            String str_ID = findSubStr("along",6,"from",elemStr); // along [str_ID]
 
             temp_List_ofID.add(str_ID);
         }
@@ -173,17 +192,21 @@ public class NextExhibitActivity extends AppCompatActivity {
                     // on first element of list // isolate substr from [this] to
                     if (i==0) {
 
+                        /*
                         int startIndex = toModify.indexOf("from")+5;
                         int endIndex = toModify.indexOf(" to");
-                        myStrA = toModify.substring(startIndex,endIndex);
+                        myStrA = toModify.substring(startIndex,endIndex); */
+
+                        myStrA = findSubStr("from",5,"to",toModify);
 
                     } // will modify into last element of list
 
                     if (i==intList.size()-1) { // on last loop iteration
 
-                        int startIndex = toModify.indexOf("from")+5;
+                        /* int startIndex = toModify.indexOf("from")+5;
                         int endIndex = toModify.indexOf(" to");
-                        String myStrA_toReplace = toModify.substring(startIndex,endIndex);
+                        String myStrA_toReplace = toModify.substring(startIndex,endIndex); */
+                        String myStrA_toReplace = findSubStr("from",5,"to",toModify);
 
                         String updateWith = detailed_Directions_List.get(intList.get(i)).replace(myStrA_toReplace,myStrA);
                         detailed_Directions_List.set(intList.get(i),updateWith); // intList.get(i) should actually be static -- last index
@@ -195,9 +218,11 @@ public class NextExhibitActivity extends AppCompatActivity {
                 for (Integer i : intList) {
                     String toModify = detailed_Directions_List.get(i);
 
+
                     int startIndex = detailed_Directions_List.indexOf("Walk")+5;
                     int endIndex = detailed_Directions_List.indexOf(" meters");
-                    String strMeters = toModify.substring(startIndex,endIndex);
+                    /*String strMeters = toModify.substring(startIndex,endIndex); */
+                    String strMeters = findSubStr("Walk",5,"meters",toModify);
                     int intMeters = Integer.parseInt(strMeters); // convert to integer
 
                     sum = sum + intMeters; // group dist. (meter) sum
@@ -212,9 +237,9 @@ public class NextExhibitActivity extends AppCompatActivity {
 
                 }
 
-
             }
 
+            System.out.println(brief_Directions_List);
             /*
             else // List only has one index // don't need to combine any directions cards // is a unique directions card
                 continue
