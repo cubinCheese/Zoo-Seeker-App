@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdapter.ViewHolder> {
 
     private List<ZooData.VertexInfo> searchExhibits = Collections.emptyList();
+
     private Consumer<ZooData.VertexInfo> onSearchListItemClicked;
 
 
@@ -35,6 +36,7 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
         this.searchExhibits=unPackedDataList;
         notifyDataSetChanged();
     }
+
 
 
     public void setOnSearchListItemClickedHandlder(Consumer<ZooData.VertexInfo> onSearchListItemClicked){
@@ -57,6 +59,7 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.setSearchItem(searchExhibits.get(position));
+
     }
     //@Override
     //public long getItemId(int position){return searchExhibits.get(position).id;}
@@ -78,7 +81,6 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
             super(itemView);
             this.searchListItem =  itemView.findViewById(R.id.search_list_item);
             //this.selectedExhibitCount = itemView.findViewById(R.id.selected_exhibit_count);
-            
             this.searchListItem.setOnClickListener(view -> {
                 if(onSearchListItemClicked == null) return;
 
@@ -97,9 +99,8 @@ public class SearchDisplayAdapter extends RecyclerView.Adapter<SearchDisplayAdap
         public void setSearchItem(ZooData.VertexInfo searchItem){
             this.searchItem=searchItem;
             this.searchListItem.setText(searchItem.name);
-
-
         }
+
 
 
     }

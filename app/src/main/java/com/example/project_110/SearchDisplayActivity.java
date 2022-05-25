@@ -31,7 +31,8 @@ public class SearchDisplayActivity extends AppCompatActivity {
     TextView selectedDisplayCount;
     Button clearSelectedButton;
 
-    public RecyclerView recyclerView;
+    public RecyclerView searchRecyclerView,selectedRecyclerView;
+
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
     private SearchListViewModel searchListViewModel;
@@ -52,26 +53,34 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
         SearchView search = (SearchView) findViewById(R.id.search);
         searchbar = new SearchBar(search, vertexList);
-        SearchDisplayAdapter adapter = new SearchDisplayAdapter();
-        adapter.setHasStableIds(true);
+        SearchDisplayAdapter searchAdapter = new SearchDisplayAdapter();
+        SelectedDisplayAdapter selectedAdapter = new SelectedDisplayAdapter();
+        selectedAdapter.setHasStableIds(true);
+        searchAdapter.setHasStableIds(true);
         this.clearSelectedButton.setOnClickListener(view -> {
-            Log.d("clear pressed", "thing should happen");
+            //Log.d("clear pressed", "thing should happen");
            searchListViewModel.clearSelectedExhibits();
 
         });
         //EVIL LINE OF CODE BELOW
-        //searchListViewModel.getSearchListItems().observe(this, adapter::setSearchListItems);
+        //searchListViewModel.getSearchListItems().observe(this, searchAdapter::setSearchListItems);
 
-        recyclerView = findViewById(R.id.search_items);
+        searchRecyclerView = findViewById(R.id.search_items);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        searchRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter.setOnSearchListItemClickedHandlder(searchListViewModel::selectExhibit);
+        selectedRecyclerView = findViewById(R.id.selected_items);
+
+        selectedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        searchAdapter.setOnSearchListItemClickedHandlder(searchListViewModel::selectExhibit);
 
         //Log.d("Exhibit Stats", getSelectedExhibitsList().get(1).name + " " + getSelectedExhibitsList().size());
 
 
-        recyclerView.setAdapter(adapter);
+        searchRecyclerView.setAdapter(searchAdapter);
+        selectedRecyclerView.setAdapter(selectedAdapter);
 
 
 
@@ -84,7 +93,8 @@ public class SearchDisplayActivity extends AppCompatActivity {
                         packedList.add(new VertexInfoStorable(vertex));
                     }
                    //this.selectedDisplayCount.setText(getSelectedExhibitsList().size());
-                    adapter.setSearchListItems(packedList);
+                    searchAdapter.setSearchListItems(packedList);
+                    selectedAdapter.setSelectedExhibits(getSelectedExhibitsList());
                     selectedDisplayCount.setText("Selected Exhibits: " + getSelectedExhibitsList().size());
                 });
                 Thread.sleep(100);
