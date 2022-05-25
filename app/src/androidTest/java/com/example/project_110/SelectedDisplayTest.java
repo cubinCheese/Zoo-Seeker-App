@@ -11,6 +11,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.lifecycle.Lifecycle;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -46,16 +47,42 @@ public class SelectedDisplayTest {
     public void closeDb() throws IOException {
         db.close();
     }
+}
 
-
+/*
     @Test
-    public void selectedNumberCorrect(){
+    public void selectedDisplayCorrect(){
+
+        ActivityScenario<SearchDisplayActivity> scenario = ActivityScenario.launch((SearchDisplayActivity.class));
+        scenario.onActivity(activity -> {
+            VertexInfoStorable grizz = new VertexInfoStorable(
+                    new ZooData.VertexInfo("grizz", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>()));
+            dao.insert(grizz);
+            try{
+                Thread.sleep(400);
+            }catch (Exception e){
+
+            }
+            assertEquals(1,dao.getAll().size());
+            TextView numberDisplay = (TextView) activity.findViewById(R.id.selected_exhibit_count);
+            String toParse = "" + numberDisplay.getText();
+            String[] splited = toParse.split("\\s+");
+            int numExhibits = Integer.parseInt(splited[2]);
+            assertEquals(numExhibits, activity.getSelectedExhibitsList().size());
+            RecyclerView recyclerView = activity.findViewById(R.id.selected_items);
+            int x = recyclerView.getChildCount();
+            assertEquals(x,1);
+            TextView grizzCheck = (TextView)recyclerView.getChildAt(x).findViewById(R.id.selected_list_item);
+            String nameCheck = grizzCheck.getText().toString();
+            assertEquals(nameCheck, grizz.name);
+
+        });
 
     }
 
 
 }
-
+*/
 
 
 
