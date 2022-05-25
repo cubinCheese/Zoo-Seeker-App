@@ -3,6 +3,7 @@ package com.example.project_110;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -13,6 +14,8 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +29,10 @@ public class NextExhibitActivity extends AppCompatActivity {
     private Graph<String, IdentifiedWeightedEdge> g;
     private int counter;
     private String elemStr;
+
+    public NextExhibitActivity() {
+
+    }
 
     // brief directions list constructor
     public NextExhibitActivity(List<String> brief_directions_list) {
@@ -104,12 +111,13 @@ public class NextExhibitActivity extends AppCompatActivity {
             detailed_Directions_List.add(direction);
             currVertex = target.id;
         }
-        adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, detailed_Directions_List);
+        setBrief_Directions_List();
+        adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, brief_Directions_List); // detailed_Directions_List
         ListView listView = (ListView) findViewById(R.id.directions_list);
         listView.setAdapter(adapter);
 
-        setBrief_Directions_List();
-        System.out.println(getBrief_Directions_List());
+
+        //System.out.println(getBrief_Directions_List());
     }
 
     private void lastExhibit() {
@@ -148,8 +156,18 @@ public class NextExhibitActivity extends AppCompatActivity {
     public void setBrief_Directions_List() {
         // this.brief_Directions_List = brief_Directions_List;
 
-        List<String> tempDetailed_DL = detailed_Directions_List; // local copy of list
+        List<String> tempDetailed_DL = new ArrayList<>(); //detailed_Directions_List; // local copy of list
+        tempDetailed_DL.add("Walk 20 meters along Terrace Lagoon Loop from 'Koi Fish' to 'Front Street / Terrace Lagoon Loop (South)'");
 
+        tempDetailed_DL.add("Walk 30 meters along Front Street from 'Front Street / Terrace Lagoon Loop (South)' to 'Front Street / Treetops Way'.");
+        tempDetailed_DL.add("Walk 30 meters along Treetops Way from 'Front Street / Treetops Way' to 'Treetops Way / Fern Canyon Trail'.");
+        tempDetailed_DL.add("Walk 30 meters along Treetops Way from 'Treetops Way / Fern Canyon Trail' to 'Treetops Way / Orangutan Trail'.");
+        tempDetailed_DL.add("Walk 100 meters along Treetops Way from 'Treetops Way / Orangutan Trail' to 'Treetops Way / Hippo Trail'.");
+        tempDetailed_DL.add("Walk 30 meters along Hippo Trail from 'Treetops Way / Hippo Trail' to 'Hippos'.");
+        tempDetailed_DL.add("Walk 10 meters along Hippo Trail from 'Hippos' to 'Crocodiles'.");
+
+        //System.out.println("Look here >>>>>>>>>>>>>>>>>");
+        //System.out.println(tempDetailed_DL);
         List<String> temp_List_ofID = new ArrayList<>(); // ordering parallels detailed_Directions_List
                                                          // temp list of lists of indicies
         // groups indicies of temp_list_ofIDs, by IDs
@@ -172,20 +190,46 @@ public class NextExhibitActivity extends AppCompatActivity {
         // have: [A,B,A,A,C]
         // want: [[0],[1],[2,3],[4]]
         Integer tL_IDsize = temp_List_ofID.size();
+        //List<Boolean> bool_List_ofID = new ArrayList<Boolean>(Arrays.asList(new Boolean[tL_IDsize])); // parallels temp_List_ofID
+        //Collections.fill(bool_List_ofID, Boolean.FALSE);
+        //System.out.println("Look here >>>>>>>>>>>>>>>>>");
+        //System.out.println(tL_IDsize);
+        //System.out.println(tempDetailed_DL);
         for (int i=0; i<tL_IDsize; i++) {
-            String toCheck = temp_List_ofID.get(i); // check if string is within any list
             List<Integer> tempStrList = new ArrayList<Integer>();
+            String toCheck = temp_List_ofID.get(i); // check if string is within any list
             for (int j=0; j<tL_IDsize; j++) {
-                if (toCheck == temp_List_ofID.get(j)) { // found duplicate
+                if (toCheck.equals(temp_List_ofID.get(j))) { // found duplicate
                     // add duplicate's index to list of lists
+                    //if ()
+
                     tempStrList.add(j);
+                    System.out.println("Look here >>>>>>>>>>>>>>>>>");
+                    System.out.println(tempStrList);
+                    System.out.println(temp_List_ofList);
+
                 }
             }
             temp_List_ofList.add(tempStrList);  // add all indicies of unique string to list of lists
+
+        } //[[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]]
+
+        /*
+        for (List<Integer> list : temp_List_ofList) {
+            Boolean cond = list.isEmpty();
+            if (cond == Boolean.TRUE)
+                temp_List_ofList.remove(list);
+            System.out.println(temp_List_ofList);
         }
+        System.out.println("Look here >>>>>>>>>>>>>>>>>");
+        System.out.println(temp_List_ofList);
+
+         */
 
         // now: go through detailed directions list instance, group them by identifiers
         for (List<Integer> intList : temp_List_ofList) { // loop through list of <lists>
+            //System.out.println("Look here >>>>>>>>>>>>>>>>>");
+            //System.out.println(intList.size());
             if (intList.size() > 1) {                    // if there are duplicates
                 String myStrA = "";
                 for (int i = 0; i < intList.size(); i++) { // go through current <list>
@@ -239,13 +283,17 @@ public class NextExhibitActivity extends AppCompatActivity {
                     tempDetailed_DL.get(intList.get(i)).replace(myStrMeters_toReplace,totMeters);
                     // now remove all but last element of list and add to brief_directions_List
                     brief_Directions_List.add(tempDetailed_DL.get(intList.get(i)));
+                    //System.out.println("Look here >>>>>>>>>>>>>>>>>");
+                    //System.out.println(tempDetailed_DL.get(0));
+                    Log.d("Look here >>>>>>>>>>", String.valueOf(tempDetailed_DL.size()));
 
                 }
-
+                //System.out.println(tempDetailed_DL.size());
             }
 
+            /*System.out.println("----------------------------------------------------------------\n\n");
             System.out.println(brief_Directions_List);
-            /*
+
             else // List only has one index // don't need to combine any directions cards // is a unique directions card
                 continue
 
