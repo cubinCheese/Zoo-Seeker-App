@@ -27,7 +27,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to Ex
     private Graph<String, IdentifiedWeightedEdge> g;
     private int counter;
     private ListView listView;
-    Switch dirSwitch;
+    private Switch dirSwitch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
