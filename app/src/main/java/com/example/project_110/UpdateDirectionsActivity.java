@@ -65,6 +65,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to Ex
 
     public void onNextBtnClick(View view) {
         directionsList.clear();
+        dirSwitch.setChecked(false);
         counter+=1;
         generateDetailed();
         updateView();
