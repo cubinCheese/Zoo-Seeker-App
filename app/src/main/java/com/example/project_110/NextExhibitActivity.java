@@ -16,6 +16,7 @@ import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -126,6 +127,23 @@ public class NextExhibitActivity extends AppCompatActivity {
     // getter for brief directions list
     public List<String> getBrief_Directions_List() {
         return brief_Directions_List;
+    }
+
+    // function to remove duplicates from List of List of integers
+    public List<List<Integer>> removeDuplicatesLL(List<List<Integer>> input) {
+        List<List<Integer>> output = new ArrayList<>();
+        HashMap<List<Integer>, Integer> tempMap = new HashMap<>(); // List, counter
+
+        // MANIPULATE dictionaries to eliminate duplicates
+
+        for (List<Integer> list_ofInt : input) {
+            if (!tempMap.containsKey(list_ofInt)) { // if the list isn't already in the hash map
+                // add the list to the map
+                // increment (value of key) counter to 1
+                tempMap.put(list_ofInt,1);
+            }
+        }
+
     }
 
     public String findSubStr(String start, int offset, String end, String toExtractFrom) {
