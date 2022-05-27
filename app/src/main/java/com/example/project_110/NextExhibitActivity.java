@@ -131,19 +131,18 @@ public class NextExhibitActivity extends AppCompatActivity {
 
     // function to remove duplicates from List of List of integers
     public List<List<Integer>> removeDuplicatesLL(List<List<Integer>> input) {
-        List<List<Integer>> output = new ArrayList<>();
-        HashMap<List<Integer>, Integer> tempMap = new HashMap<>(); // List, counter
+        List<List<Integer>> outputLL = new ArrayList<>();
+        HashMap<List<Integer>, Integer> tempMap = new HashMap<>(); // List, counter (unused)
 
         // MANIPULATE dictionaries to eliminate duplicates
-
         for (List<Integer> list_ofInt : input) {
-            if (!tempMap.containsKey(list_ofInt)) { // if the list isn't already in the hash map
-                // add the list to the map
-                // increment (value of key) counter to 1
-                tempMap.put(list_ofInt,1);
-            }
+            tempMap.put(list_ofInt,0);
         }
-
+        for (Map.Entry<List<Integer>,Integer> mapElement : tempMap.entrySet()) {
+            List<Integer> uniqueList = mapElement.getKey();
+            outputLL.add(uniqueList);
+        }
+        return outputLL;
     }
 
     public String findSubStr(String start, int offset, String end, String toExtractFrom) {
@@ -222,15 +221,16 @@ public class NextExhibitActivity extends AppCompatActivity {
                     //if ()
 
                     tempStrList.add(j);
-                    System.out.println("Look here >>>>>>>>>>>>>>>>>");
+                    /*System.out.println("Look here >>>>>>>>>>>>>>>>>");
                     System.out.println(tempStrList);
-                    System.out.println(temp_List_ofList);
+                    System.out.println(temp_List_ofList);*/
 
                 }
             }
             temp_List_ofList.add(tempStrList);  // add all indicies of unique string to list of lists
 
         } //[[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]]
+        temp_List_ofList = removeDuplicatesLL(temp_List_ofList);
 
         /*
         for (List<Integer> list : temp_List_ofList) {
@@ -241,8 +241,8 @@ public class NextExhibitActivity extends AppCompatActivity {
         }
         System.out.println("Look here >>>>>>>>>>>>>>>>>");
         System.out.println(temp_List_ofList);
+        */
 
-         */
 
         // now: go through detailed directions list instance, group them by identifiers
         for (List<Integer> intList : temp_List_ofList) { // loop through list of <lists>
