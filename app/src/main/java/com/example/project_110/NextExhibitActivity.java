@@ -118,7 +118,7 @@ public class NextExhibitActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
 
-        //System.out.println(getBrief_Directions_List());
+        System.out.println(getBrief_Directions_List());
     }
 
     private void lastExhibit() {
@@ -246,10 +246,11 @@ public class NextExhibitActivity extends AppCompatActivity {
 
         // now: go through detailed directions list instance, group them by identifiers
         for (List<Integer> intList : temp_List_ofList) { // loop through list of <lists>
-            //System.out.println("Look here >>>>>>>>>>>>>>>>>");
+            System.out.println("Look here >>>>>>>>>>>>>>>>>2");
             //System.out.println(intList.size());
             if (intList.size() > 1) {                    // if there are duplicates
                 String myStrA = "";
+                System.out.println("Look here >>>>>>>>>>>>>>>>>3");
                 for (int i = 0; i < intList.size(); i++) { // go through current <list>
                     // at the indices within <list> // @ detailed directions list of that index
                     // combine the first occurrence and the last occurrence
@@ -282,6 +283,7 @@ public class NextExhibitActivity extends AppCompatActivity {
                 } // by here, we've modified the detailed_directions_lists "from A to B"
                 int sum = 0; // running sum of meters // condensing into one card
                 // want to merge the sum of X meters, and remove unwanted directions cards
+                System.out.println("Look here >>>>>>>>>>>>>>>>>4");
                 for (Integer i : intList) {
                     String toModify = tempDetailed_DL.get(i);
 
@@ -298,6 +300,7 @@ public class NextExhibitActivity extends AppCompatActivity {
 
                     // remove all duplicates
                     String myStrMeters_toReplace = toModify.substring(startIndex,endIndex);
+                    System.out.print((myStrMeters_toReplace));
                     tempDetailed_DL.get(intList.get(i)).replace(myStrMeters_toReplace,totMeters);
                     // now remove all but last element of list and add to brief_directions_List
                     brief_Directions_List.add(tempDetailed_DL.get(intList.get(i)));
