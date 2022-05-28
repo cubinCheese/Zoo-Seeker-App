@@ -13,6 +13,7 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,19 +132,23 @@ public class NextExhibitActivity extends AppCompatActivity {
 
     // sorting a List of List of integers
     // pre-condition : List of integers are of size 1.
-    public List<List<Integer>> sortLL(List<List<Integer>> input) {
+    // public List<List<Integer>> sortLL(List<List<Integer>> input) {
+    public List<Integer> sortLL(List<List<Integer>> input) {
         TreeSet<Integer> treeSet = new TreeSet<Integer>();
-        List<List<Integer>> output = new ArrayList<>();
+        // List<List<Integer>> output = new ArrayList<>();
+        List<Integer> output = new ArrayList<>();
 
         for (List<Integer> list : input) {
             for (Integer integer : list) {
                 treeSet.add(integer);
             }
         }
+
         for (Integer integer : treeSet) {
-            List<Integer> tList = new ArrayList<>();
-            tList.add(integer);
-            output.add(tList);
+            //List<Integer> tList = new ArrayList<>();
+            //tList.add(integer);
+            //output.add(tList);
+            output.add(integer);
         }
         return output;
     }
@@ -319,7 +324,7 @@ public class NextExhibitActivity extends AppCompatActivity {
                 // want to merge the sum of X meters, and remove unwanted directions cards
                 System.out.println("Look here >>>>>>>>>>>>>>>>>4");
                 System.out.println(intList);
-                Integer Counter = 0;
+                Integer CounterExt = 0;
                 int lastElem = intList.size();  // the directions card we'll merge everything into
                 for (Integer elemInt : intList) {
 
@@ -338,17 +343,18 @@ public class NextExhibitActivity extends AppCompatActivity {
                     sum = sum + intMeters; // group dist. (meter) sum
 
                     // insert sum into tempDetailed_DL at last card
-                    if (externalCounter==intList.size()-1) { // on last loop iteration
+                    if (CounterExt==intList.size()-1) { // on last loop iteration
                         String totMeters = String.valueOf(sum); // convert back to string
                         System.out.println("totMeters: " + totMeters);
                         String updateWith = tempDetailed_DL.get(elemInt).replace(strMeters,totMeters);
                         tempDetailed_DL.set(elemInt, updateWith);
 
                         //String toAdd_FF = tempDetailed_DL.get(elemInt);
-                        //System.out.println("Checking Temp:" + tempDetailed_DL);
+                        //System.out.println("Checking updateWith:" + updateWith);
                         //tempDetailed_DL_FinalForm.add(updateWith);
+                        System.out.println("Check last appearance: " +tempDetailed_DL);
                     }
-                    Counter++;
+                    CounterExt++;
                 }
 
 
@@ -364,14 +370,14 @@ public class NextExhibitActivity extends AppCompatActivity {
                 } // now intList contains the only index within tempDetailed_DL that needs to be kept
                 System.out.println("point of test");
                 System.out.println(intList); // should only be : [[int],[int],etc...]
-                temp_List_ofList = sortLL(temp_List_ofList);
+
                 /*
                 List<String> tempDetailed_DL_FinalForm = new ArrayList<>();
                 for (Integer indexElem : intList) {
                     String toAdd_FF = tempDetailed_DL.get(indexElem);
                     tempDetailed_DL_FinalForm.add(toAdd_FF);
                 }*/
-                System.out.println("This: "+temp_List_ofList);
+                // System.out.println("This: "+temp_List_ofList);
                 /*
                 // ensure sorted order -- of directions cards
                 TreeSet<Integer> treeSet = new TreeSet<>(); // used only for sorting LL
@@ -411,7 +417,6 @@ public class NextExhibitActivity extends AppCompatActivity {
                 System.out.println("Look here >>>>>>>>>>>>>>>>>5");
                 System.out.println(tempDetailed_DL.size());
             }
-            System.out.println("Look here >>>>>>>>>>>>>>>>>6");
             /*System.out.println("----------------------------------------------------------------\n\n");
             System.out.println(brief_Directions_List);
 
@@ -421,6 +426,24 @@ public class NextExhibitActivity extends AppCompatActivity {
              */
 
         }
+
+        List<Integer> listOfIndicies = sortLL(temp_List_ofList);
+        //
+        System.out.println("Look here >>>>>>>>>>>>>>>>>12312312321");
+        System.out.println(listOfIndicies);
+        System.out.println("Look here >>>>>>>>>>>>>>>>>12312312321");
+        List<String> tempDetailed_DL_After = new ArrayList<>();
+        for(int j = listOfIndicies.size()-1; j>=0; j--){
+            for(int i = tempDetailed_DL.size()-1; i>=0; i--){
+                if(listOfIndicies.get(j) == i){
+                    tempDetailed_DL_After.add(tempDetailed_DL.get(i));
+                }
+            }
+        }
+        Collections.reverse(tempDetailed_DL_After);
+
+        System.out.println("Look here >>>>>>>>>>>>>>>>>6");
+        System.out.println("this is final return: " + tempDetailed_DL_After);
     }
 
 } // end of nextBtnClk
