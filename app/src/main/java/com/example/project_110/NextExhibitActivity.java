@@ -3,7 +3,6 @@ package com.example.project_110;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -14,11 +13,10 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 public class NextExhibitActivity extends AppCompatActivity {
     private List<String> detailed_Directions_List;
@@ -113,12 +111,14 @@ public class NextExhibitActivity extends AppCompatActivity {
             currVertex = target.id;
         }
         setBrief_Directions_List();
+        System.out.println(getBrief_Directions_List());
+        System.out.println(brief_Directions_List);
         adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, brief_Directions_List); // detailed_Directions_List
         ListView listView = (ListView) findViewById(R.id.directions_list);
         listView.setAdapter(adapter);
 
 
-        System.out.println(getBrief_Directions_List());
+
     }
 
     private void lastExhibit() {
@@ -129,10 +129,30 @@ public class NextExhibitActivity extends AppCompatActivity {
         return brief_Directions_List;
     }
 
+    // sorting a List of List of integers
+    // pre-condition : List of integers are of size 1.
+    public List<List<Integer>> sortLL(List<List<Integer>> input) {
+        TreeSet<Integer> treeSet = new TreeSet<Integer>();
+        List<List<Integer>> output = new ArrayList<>();
+
+        for (List<Integer> list : input) {
+            for (Integer integer : list) {
+                treeSet.add(integer);
+            }
+        }
+        for (Integer integer : treeSet) {
+            List<Integer> tList = new ArrayList<>();
+            tList.add(integer);
+            output.add(tList);
+        }
+        return output;
+    }
+
     // function to remove duplicates from List of List of integers
     public List<List<Integer>> removeDuplicatesLL(List<List<Integer>> input) {
         List<List<Integer>> outputLL = new ArrayList<>();
         HashMap<List<Integer>, Integer> tempMap = new HashMap<>(); // List, counter (unused)
+
 
         // MANIPULATE dictionaries to eliminate duplicates
         for (List<Integer> list_ofInt : input) {
@@ -142,6 +162,7 @@ public class NextExhibitActivity extends AppCompatActivity {
             List<Integer> uniqueList = mapElement.getKey();
             outputLL.add(uniqueList);
         }
+
         return outputLL;
     }
 
@@ -242,76 +263,155 @@ public class NextExhibitActivity extends AppCompatActivity {
         System.out.println("Look here >>>>>>>>>>>>>>>>>");
         System.out.println(temp_List_ofList);
         */
+        List<String> tempDetailed_DL_FinalForm = new ArrayList<>();
 
-
+        System.out.println("Elements in Temp list of lists: " + temp_List_ofList);
         // now: go through detailed directions list instance, group them by identifiers
         for (List<Integer> intList : temp_List_ofList) { // loop through list of <lists>
             System.out.println("Look here >>>>>>>>>>>>>>>>>2");
-            //System.out.println(intList.size());
-            if (intList.size() > 1) {                    // if there are duplicates
+            System.out.println(intList.size());
+            if (intList.size() > 1) {                // if there are multiple directions in a group
                 String myStrA = "";
                 System.out.println("Look here >>>>>>>>>>>>>>>>>3");
-                for (int i = 0; i < intList.size(); i++) { // go through current <list>
+                System.out.println("myStrA (initalize): " + myStrA);
+
+                Integer externalCounter = 0;
+                for (Integer index : intList) { //int i = 0; i < intList.size(); i++) { // go through current <list>
                     // at the indices within <list> // @ detailed directions list of that index
                     // combine the first occurrence and the last occurrence
-                    String toModify = tempDetailed_DL.get(i);
+                    String toModify = tempDetailed_DL.get(index);
+
 
                     // take out from A to B
                     // on first element of list // isolate substr from [this] to
-                    if (i==0) {
+                    if (externalCounter==0) {
 
                         /*
                         int startIndex = toModify.indexOf("from")+5;
                         int endIndex = toModify.indexOf(" to");
                         myStrA = toModify.substring(startIndex,endIndex); */
+                    System.out.println("toModify: " + toModify);
+                    myStrA = findSubStr("from",5,"to",toModify); // item we'll insert to final card
 
-                        myStrA = findSubStr("from",5,"to",toModify);
+                        //System.out.println("myStrA: " + myStrA);
 
                     } // will modify into last element of list
 
-                    if (i==intList.size()-1) { // on last loop iteration
+                    if (externalCounter==intList.size()-1) { // on last loop iteration
 
                         /* int startIndex = toModify.indexOf("from")+5;
                         int endIndex = toModify.indexOf(" to");
                         String myStrA_toReplace = toModify.substring(startIndex,endIndex); */
-                        String myStrA_toReplace = findSubStr("from",5,"to",toModify);
+                        String myStrA_toReplace = findSubStr("from",5,"to",toModify); // substring in last card to replace
+                        System.out.println("myStrA: " + myStrA);
+                        System.out.println("myStrA_toReplace: " + myStrA_toReplace);
 
-                        String updateWith = tempDetailed_DL.get(intList.get(i)).replace(myStrA_toReplace,myStrA);
-                        tempDetailed_DL.set(intList.get(i),updateWith); // intList.get(i) should actually be static -- last index
+                        String updateWith = tempDetailed_DL.get(index).replace(myStrA_toReplace,myStrA);
+                        tempDetailed_DL.set(index,updateWith); // intList.get(i) should actually be static -- last index
+                        System.out.println("updateWith: " + updateWith);
+
                     } // last str holds condensed directions
-
+                    externalCounter++;
                 } // by here, we've modified the detailed_directions_lists "from A to B"
+
+
                 int sum = 0; // running sum of meters // condensing into one card
                 // want to merge the sum of X meters, and remove unwanted directions cards
                 System.out.println("Look here >>>>>>>>>>>>>>>>>4");
-                for (Integer i : intList) {
-                    String toModify = tempDetailed_DL.get(i);
+                System.out.println(intList);
+                Integer Counter = 0;
+                int lastElem = intList.size();  // the directions card we'll merge everything into
+                for (Integer elemInt : intList) {
 
+                    // retrieve directions card
+                    String toModify = tempDetailed_DL.get(elemInt);
 
+                    // extract total meters (part of final data)
                     int startIndex = tempDetailed_DL.indexOf("Walk")+5;
                     int endIndex = tempDetailed_DL.indexOf(" meters");
-                    /*String strMeters = toModify.substring(startIndex,endIndex); */
+                    //String strMeters = toModify.substring(startIndex,endIndex);
+                    System.out.println(startIndex);
                     String strMeters = findSubStr("Walk",5,"meters",toModify);
+                    //System.out.println(strMeters.getClass().getSimpleName());
                     int intMeters = Integer.parseInt(strMeters); // convert to integer
-
+                    //System.out.println(intMeters.getClass().getSimpleName());
                     sum = sum + intMeters; // group dist. (meter) sum
 
-                    String totMeters = String.valueOf(sum); // convert back to string
+                    // insert sum into tempDetailed_DL at last card
+                    if (externalCounter==intList.size()-1) { // on last loop iteration
+                        String totMeters = String.valueOf(sum); // convert back to string
+                        System.out.println("totMeters: " + totMeters);
+                        String updateWith = tempDetailed_DL.get(elemInt).replace(strMeters,totMeters);
+                        tempDetailed_DL.set(elemInt, updateWith);
 
-                    // remove all duplicates
-                    String myStrMeters_toReplace = toModify.substring(startIndex,endIndex);
-                    System.out.print((myStrMeters_toReplace));
+                        //String toAdd_FF = tempDetailed_DL.get(elemInt);
+                        //System.out.println("Checking Temp:" + tempDetailed_DL);
+                        //tempDetailed_DL_FinalForm.add(updateWith);
+                    }
+                    Counter++;
+                }
+
+
+
+                // intList - holds current grouping in view
+                // want : destroy everything but the last elem of intList
+                // correspondingly in tempDetailed_DL
+                // remove all duplicate direction cards -- prevent modifying list when extracting from it (above)
+                while (intList.size() > 1)
+                {
+                    //if (intList.size() != 1)
+                    intList.remove(0);
+                } // now intList contains the only index within tempDetailed_DL that needs to be kept
+                System.out.println("point of test");
+                System.out.println(intList); // should only be : [[int],[int],etc...]
+                temp_List_ofList = sortLL(temp_List_ofList);
+                /*
+                List<String> tempDetailed_DL_FinalForm = new ArrayList<>();
+                for (Integer indexElem : intList) {
+                    String toAdd_FF = tempDetailed_DL.get(indexElem);
+                    tempDetailed_DL_FinalForm.add(toAdd_FF);
+                }*/
+                System.out.println("This: "+temp_List_ofList);
+                /*
+                // ensure sorted order -- of directions cards
+                TreeSet<Integer> treeSet = new TreeSet<>(); // used only for sorting LL
+                for (List<Integer> item : temp_List_ofList) {
+                    treeSet.add(item.get(0));
+                    temp_List_ofList.removeAll(item);
+                }
+                for (Integer item : treeSet) {
+                    List<Integer> list = new ArrayList<>(item);
+                    temp_List_ofList.add(list);
+                }
+                System.out.println("set: " + treeSet);
+                System.out.println("setafter: " + temp_List_ofList); */
+
+
+
+                //System.out.println("after: " + temp);
+
+                // first complete merg
+
+                    /*
+                    // remove all duplicate direction cards
+                    // String myStrMeters_toReplace = toModify.substring(startIndex,endIndex);
+                    String myStrMeters_toReplace = findSubStr("Walk",5," meters",toModify);
+                    //String myStrMeters_toReplace = "test fail point";
+                    System.out.println(myStrMeters_toReplace);
+                    System.out.println(toModify);
                     tempDetailed_DL.get(intList.get(i)).replace(myStrMeters_toReplace,totMeters);
                     // now remove all but last element of list and add to brief_directions_List
                     brief_Directions_List.add(tempDetailed_DL.get(intList.get(i)));
                     //System.out.println("Look here >>>>>>>>>>>>>>>>>");
                     //System.out.println(tempDetailed_DL.get(0));
-                    Log.d("Look here >>>>>>>>>>", String.valueOf(tempDetailed_DL.size()));
+                    //Log.d("Look here >>>>>>>>>>", String.valueOf(tempDetailed_DL.size())); */
 
-                }
-                //System.out.println(tempDetailed_DL.size());
+
+
+                System.out.println("Look here >>>>>>>>>>>>>>>>>5");
+                System.out.println(tempDetailed_DL.size());
             }
-
+            System.out.println("Look here >>>>>>>>>>>>>>>>>6");
             /*System.out.println("----------------------------------------------------------------\n\n");
             System.out.println(brief_Directions_List);
 
