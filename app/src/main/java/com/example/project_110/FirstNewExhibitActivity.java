@@ -1,6 +1,8 @@
 package com.example.project_110;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -28,6 +30,9 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
     private RouteProgressViewModel viewModel;
     private int counter;
     private boolean restarting;
+
+    LocationPermissionChecker permissionChecker;
+    private LocationModel locationModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +72,17 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, directionsList);
         ListView listView = (ListView) findViewById(R.id.directions_list);
         listView.setAdapter(adapter);
+
+        // Location stuff
+        {
+           permissionChecker = new LocationPermissionChecker(this);
+           permissionChecker.ensurePermissions();
+
+           locationModel = new ViewModelProvider(this).get(LocationModel.class);
+           LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+           String provider = LocationManager.GPS_PROVIDER;
+           locationModel.addLocationProviderSource(locationManager, provider);
+        }
     }
 
     @Override
