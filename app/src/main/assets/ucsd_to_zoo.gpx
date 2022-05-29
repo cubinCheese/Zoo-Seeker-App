@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" creator="mapstogpx.com" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+  <metadata>
+    <link href="http://www.mapstogpx.com">
+      <text>Sverrir Sigmundarson</text>
+    </link>
+    <!--desc>Map data copyright 2022 Google</desc-->
+    <!--copyright author="Google Inc">
+    	<year>2022</year>
+    	<license>https://developers.google.com/maps/terms</license>
+    </copyright-->
+    <!--url>https://www.google.com/maps/dir/32.8801,+-117.2340/32.7353,+-117.1490/@32.8070507,-117.2635664,12z/data=!3m1!4b1!4m10!4m9!1m3!2m2!1d-117.234!2d32.8801!1m3!2m2!1d-117.149!2d32.7353!3e1?shorturl=1&hl=en</url-->
+    <time>2022-05-16T00:32:16Z</time>
+  </metadata>
+  <wpt lat="32.8801" lon="-117.234">
+    <name>32.8801</name>
+  </wpt>
+  <wpt lat="32.7353" lon="-117.149">
+    <name>32.7353</name>
+  </wpt>
+<rte>
+  <name>Biking from UCSD to Zoo</name>
+  <rtept lat="32.880098" lon="-117.2340002">
+    <name>RP001</name>
+  </rtept>
+  <rtept lat="32.8801451" lon="-117.235544">
+    <name>RP002</name>
+  </rtept>
+  <rtept lat="32.8793588" lon="-117.2353782">
+    <name>RP003</name>
+  </rtept>
+  <rtept lat="32.879043" lon="-117.2375663">
+    <name>RP004</name>
+  </rtept>
+  <rtept lat="32.8787741" lon="-117.2375612">
+    <name>RP005</name>
+  </rtept>
+  <rtept lat="32.8787671" lon="-117.2380653">
+    <name>RP006</name>
+  </rtept>
+  <rtept lat="32.8774568" lon="-117.2389916">
+    <name>RP007</name>
+  </rtept>
+  <rtept lat="32.876949" lon="-117.2384461">
+    <name>RP008</name>
+  </rtept>
+  <rtept lat="32.8491426" lon="-117.2347691">
+    <name>RP009</name>
+  </rtept>
+  <rtept lat="32.8341281" lon="-117.2322346">
+    <name>RP010</name>
+  </rtept>
+  <rtept lat="32.8172894" lon="-117.2234957">
+    <name>RP011</name>
+  </rtept>
+  <rtept lat="32.8075782" lon="-117.219634">
+    <name>RP012</name>
+  </rtept>
+  <rtept lat="32.8056719" lon="-117.222122">
+    <name>RP013</name>
+  </rtept>
+  <rtept lat="32.8021954" lon="-117.2219711">
+    <name>RP014</name>
+  </rtept>
+  <rtept lat="32.798439" lon="-117.2194929">
+    <name>RP015</name>
+  </rtept>
+  <rtept lat="32.7671957" lon="-117.2086168">
+    <name>RP016</name>
+  </rtept>
+  <rtept lat="32.7422113" lon="-117.188627">
+    <name>RP017</name>
+  </rtept>
+  <rtept lat="32.7402138" lon="-117.184424">
+    <name>RP018</name>
+  </rtept>
+  <rtept lat="32.7477692" lon="-117.175317">
+    <name>RP019</name>
+  </rtept>
+  <rtept lat="32.7488963" lon="-117.1732055">
+    <name>RP020</name>
+  </rtept>
+  <rtept lat="32.7489459" lon="-117.1732064">
+    <name>RP021</name>
+  </rtept>
+  <rtept lat="32.7483346" lon="-117.15952">
+    <name>RP022</name>
+  </rtept>
+  <rtept lat="32.739869" lon="-117.159399">
+    <name>RP023</name>
+  </rtept>
+  <rtept lat="32.7398633" lon="-117.1589206">
+    <name>RP024</name>
+  </rtept>
+  <rtept lat="32.7390245" lon="-117.158898">
+    <name>RP025</name>
+  </rtept>
+  <rtept lat="32.7325569" lon="-117.1587612">
+    <name>RP026</name>
+  </rtept>
+  <rtept lat="32.7326209" lon="-117.1578224">
+    <name>RP027</name>
+  </rtept>
+  <rtept lat="32.7317359" lon="-117.1576675">
+    <name>RP028</name>
+  </rtept>
+  <rtept lat="32.7317239" lon="-117.1569908">
+    <name>RP029</name>
+  </rtept>
+  <rtept lat="32.7314182" lon="-117.157004">
+    <name>RP030</name>
+  </rtept>
+  <rtept lat="32.7314274" lon="-117.1528623">
+    <name>RP031</name>
+  </rtept>
+  <rtept lat="32.7313027" lon="-117.1508374">
+    <name>RP032</name>
+  </rtept>
+  <rtept lat="32.7315974" lon="-117.1478961">
+    <name>RP033</name>
+  </rtept>
+  <rtept lat="32.733025" lon="-117.147856">
+    <name>RP034</name>
+  </rtept>
+  <rtept lat="32.7352935" lon="-117.1485915">
+    <name>RP035</name>
+  </rtept>
+  <rtept lat="32.735086" lon="-117.1488156">
+    <name>RP036</name>
+  </rtept>
+</rte>
+</gpx>
