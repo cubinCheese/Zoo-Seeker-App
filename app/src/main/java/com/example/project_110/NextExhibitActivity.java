@@ -116,7 +116,7 @@ public class NextExhibitActivity extends AppCompatActivity {
         System.out.println(brief_Directions_List);
         adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, brief_Directions_List); // detailed_Directions_List
         ListView listView = (ListView) findViewById(R.id.directions_list);
-        listView.setAdapter(adapter);
+        //listView.setAdapter(adapter);
 
 
 
