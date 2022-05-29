@@ -20,6 +20,9 @@ public class VertexInfoStorable implements Parcelable {
         id = in.readString();
         name = in.readString();
         tags = in.readString();
+        parent_id = in.readString();
+        lat = in.readDouble();
+        lng = in.readDouble();
     }
 
     public static final Creator<VertexInfoStorable> CREATOR = new Creator<VertexInfoStorable>() {
@@ -45,6 +48,9 @@ public class VertexInfoStorable implements Parcelable {
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(tags);
+        dest.writeString(parent_id);
+        dest.writeDouble(lat);
+        dest.writeDouble(lng);
     }
 
     public static enum Kind {
@@ -52,7 +58,8 @@ public class VertexInfoStorable implements Parcelable {
         // from the strings in our JSON to this Enum.
         @SerializedName("gate") GATE,
         @SerializedName("exhibit") EXHIBIT,
-        @SerializedName("intersection") INTERSECTION
+        @SerializedName("intersection") INTERSECTION,
+        @SerializedName("exhibit_group") EXHIBIT_GROUP
     }
 
     public VertexInfoStorable(){
@@ -63,18 +70,24 @@ public class VertexInfoStorable implements Parcelable {
     public ZooData.VertexInfo.Kind kind;
     public String name;
     public String tags;
+    public String parent_id;
+    public double lat;
+    public double lng;
 
 
     public VertexInfoStorable(ZooData.VertexInfo vertexInfo) {
         this.id = vertexInfo.id;
         this.kind = vertexInfo.kind;
         this.name = vertexInfo.name;
+        this.parent_id = vertexInfo.parent_id == null ? "" : vertexInfo.parent_id;
+        this.lat = vertexInfo.lat == null ? 0 : vertexInfo.lat;
+        this.lng = vertexInfo.lng == null ? 0 : vertexInfo.lng;
         tags = vertexInfo.tags.toString();
     }
 
     public ZooData.VertexInfo unPack(){
 
-        return new ZooData.VertexInfo(id, kind, name, new ArrayList());
+        return new ZooData.VertexInfo(id, parent_id, kind, name, new ArrayList(), lat, lng);
 
     }
 

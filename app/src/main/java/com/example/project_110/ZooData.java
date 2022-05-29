@@ -3,6 +3,8 @@ package com.example.project_110;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverter;
@@ -37,23 +39,73 @@ public class ZooData {
             // from the strings in our JSON to this Enum.
             @SerializedName("gate") GATE,
             @SerializedName("exhibit") EXHIBIT,
-            @SerializedName("intersection") INTERSECTION
+            @SerializedName("intersection") INTERSECTION,
+            @SerializedName("exhibit_group") EXHIBIT_GROUP
+        }
+
+        @SerializedName("id")
+        @NonNull
+        public String id;
+
+        @SerializedName("kind")
+        @NonNull
+        public Kind kind;
+
+        @SerializedName("name")
+        @NonNull
+        public String name;
+
+        @SerializedName("tags")
+        @NonNull
+        public List<String> tags;
+
+        @SerializedName("parent_id")
+        @Nullable
+        public String parent_id;
+
+        @SerializedName("lat")
+        @Nullable
+        public Double lat;
+
+        @SerializedName("lng")
+        @Nullable
+        public Double lng;
+
+        public boolean isExhibit() {
+            return kind.equals(Kind.EXHIBIT);
+        }
+
+        public boolean isIntersection() {
+            return kind.equals(Kind.INTERSECTION);
+        }
+
+        public boolean isGroup() {
+            return kind.equals(Kind.EXHIBIT_GROUP);
+        }
+
+        public boolean hasGroup() {
+            return parent_id != null;
         }
 
 
-
-        public String id;
-        public Kind kind;
-        public String name;
-        public List<String> tags;
-
-
-
-        public VertexInfo(String id, Kind kind, String name, List<String> tags) {
+        public VertexInfo(@NonNull String id,
+                          @Nullable String parent_id,
+                          @NonNull Kind kind,
+                          @NonNull String name,
+                          @NonNull List<String> tags,
+                          @Nullable Double lat,
+                          @Nullable Double lng) {
             this.id = id;
             this.kind = kind;
             this.name = name;
             this.tags = tags;
+            this.parent_id = parent_id;
+            this.lat = lat;
+            this.lng = lng;
+
+            if (!this.hasGroup() && (lat == null || lng == null)) {
+                throw new RuntimeException("Nodes must have a lat/long unless they are grouped.");
+            }
         }
 
 
