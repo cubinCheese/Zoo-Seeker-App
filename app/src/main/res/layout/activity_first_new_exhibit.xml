@@ -44,4 +44,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.056"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/mock_location_button"
+        android:layout_width="93dp"
+        android:layout_height="73dp"
+        android:layout_marginBottom="16dp"
+        android:onClick="onMockLocationBtnClick"
+        android:text="Mock Location"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.399"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

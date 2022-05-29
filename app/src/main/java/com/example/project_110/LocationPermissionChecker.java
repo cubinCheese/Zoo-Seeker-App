@@ -20,7 +20,7 @@ public class LocationPermissionChecker {
         this.activity = activity;
         requestPermissionLauncher = activity.registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), perms -> {
             perms.forEach((perm, isGranted) -> {
-                Log.i("LAB7", String.format("Permission %s granted: %s", perm, isGranted));
+                Log.i("ZOOSEEKER", String.format("Permission %s granted: %s", perm, isGranted));
             });
         });
     }

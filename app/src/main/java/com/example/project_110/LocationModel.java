@@ -20,23 +20,33 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class LocationModel extends AndroidViewModel {
-    private final String TAG = "FOOBAR";
+    private final String TAG = "LocationModel";
     private final MediatorLiveData<Coord> lastKnownCoords;
+    private final MediatorLiveData<Coord> lastKnownMockedCoords;
 
     private LiveData<Coord> locationProviderSource = null;
     private MutableLiveData<Coord> mockSource = null;
+    private boolean useMockedCoords = false;
 
     public LocationModel(@NonNull Application application) {
         super(application);
         lastKnownCoords = new MediatorLiveData<>();
-
-        // Create and add the mock source.
-        mockSource = new MutableLiveData<>();
-        lastKnownCoords.addSource(mockSource, lastKnownCoords::setValue);
+        lastKnownMockedCoords = new MediatorLiveData<>();
+        lastKnownCoords.setValue(new Coord(0, 0));
     }
 
     public LiveData<Coord> getLastKnownCoords() {
+        if (useMockedCoords)
+            return lastKnownMockedCoords;
         return lastKnownCoords;
+    }
+
+    public boolean isUsingMockedCoords() {
+        return useMockedCoords;
+    }
+
+    public void useRealCoords() {
+        useMockedCoords = false;
     }
 
     /**
@@ -58,8 +68,10 @@ public class LocationModel extends AndroidViewModel {
             @Override
             public void onLocationChanged(@NonNull Location location) {
                 Coord coord = Coord.fromLocation(location);
-                Log.i(TAG, String.format("Model received GPS location update: %s", coord));
-                providerSource.postValue(coord);
+                // Log.i(TAG, String.format("Model received GPS location update: %s", coord));
+                // providerSource.postValue(coord);
+                lastKnownCoords.setValue(coord);
+                // System.out.println(getLastKnownCoords().getValue().lat + " " + getLastKnownCoords().getValue().lng);
             }
         };
         // Register for updates.
@@ -76,17 +88,18 @@ public class LocationModel extends AndroidViewModel {
 
     @VisibleForTesting
     public void mockLocation(Coord coords) {
-        mockSource.postValue(coords);
+        lastKnownMockedCoords.postValue(coords);
     }
 
     @VisibleForTesting
     public Future<?> mockRoute(List<Coord> route, long delay, TimeUnit unit) {
+        useMockedCoords = true;
         return Executors.newSingleThreadExecutor().submit(() -> {
             int i = 1;
             int n = route.size();
             for (Coord coord : route) {
                 // Mock the location...
-                Log.i(TAG, String.format("Model mocking route (%d / %d): %s", i++, n, coord));
+                Log.v(TAG, String.format("Model mocking route (%d / %d): %s", i++, n, coord));
                 mockLocation(coord);
 
                 // Sleep for a while...
