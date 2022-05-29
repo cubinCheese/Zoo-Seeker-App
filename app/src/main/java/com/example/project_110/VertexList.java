@@ -1,5 +1,7 @@
 package com.example.project_110;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +40,7 @@ public class VertexList {
 
             }
             searchMap.put(m.getValue().name.toLowerCase(), new ArrayList<>(Arrays.asList(m.getValue())));
+            Log.d("FOOBAR", "Map made!");
         }
     }
 

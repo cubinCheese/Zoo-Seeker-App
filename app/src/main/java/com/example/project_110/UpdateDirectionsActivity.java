@@ -37,9 +37,9 @@ public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to Ex
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_directions);
         shortestVertexOrder = getIntent().getParcelableArrayListExtra("shortestVertexOrder");
-        vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
-        eInfo = ZooData.loadEdgeInfoJSON(this, "sample_edge_info.json");
-        g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
+        vInfo = ZooData.loadVertexInfoJSON(this, "zoo_node_new.json");
+        eInfo = ZooData.loadEdgeInfoJSON(this, "zoo_edge_new.json");
+        g = ZooData.loadZooGraphJSON(this, "zoo_graph_new.json");
 
         counter = 0;
         dirSwitch = (Switch) findViewById(R.id.d_b_switch);
