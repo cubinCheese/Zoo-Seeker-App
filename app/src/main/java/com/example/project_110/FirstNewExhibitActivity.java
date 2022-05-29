@@ -1,22 +1,35 @@
 package com.example.project_110;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class FirstNewExhibitActivity extends AppCompatActivity {
     private List<String> directionsList;
@@ -28,6 +41,11 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
     private RouteProgressViewModel viewModel;
     private int counter;
     private boolean restarting;
+    private Button button;
+
+    LocationPermissionChecker permissionChecker;
+    private LocationModel locationModel;
+    ActivityResultLauncher<Intent> activityResultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +85,44 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, directionsList);
         ListView listView = (ListView) findViewById(R.id.directions_list);
         listView.setAdapter(adapter);
+
+        // Location stuff
+        {
+           permissionChecker = new LocationPermissionChecker(this);
+           permissionChecker.ensurePermissions();
+
+           locationModel = new ViewModelProvider(this).get(LocationModel.class);
+           LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+           String provider = LocationManager.GPS_PROVIDER;
+           locationModel.addLocationProviderSource(locationManager, provider);
+        }
+
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        System.out.println("B");
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            String mockLocationString = data.getStringExtra("mockLocation");
+                            try {
+                                if (mockLocationString.length() != 0) {
+                                    Gson gson = new Gson();
+                                    Coord[] mockedCoordsArray = gson.fromJson(mockLocationString, Coord[].class);
+                                    List<Coord> mockedCoordsList = new ArrayList<>(Arrays.asList(mockedCoordsArray));
+                                    locationModel.removeLocationProviderSource();
+                                    locationModel.mockRoute(mockedCoordsList, 10, TimeUnit.SECONDS);
+                                    button.setText("Use Real Location");
+                                }
+                                // Log.d("My App", mockLocationJson.toString());
+                            } catch (JsonSyntaxException j) {
+                                Log.e("My App", "Could not parse malformed JSON: \"" + mockLocationString + "\"");
+                            }
+                        }
+                    }
+                });
+        button = findViewById(R.id.mock_location_button);
     }
 
     @Override
@@ -97,6 +153,7 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
     }
 
     public void onNextBtnClick(View view) {
+        System.out.println("Last known coords: " + locationModel.getLastKnownCoords().getValue());
         nextDirection();
     }
 
@@ -153,5 +210,15 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
         Intent i=new Intent(this, MainActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);
+    }
+
+    public void onMockLocationBtnClick(View view) {
+        if (locationModel.isUsingMockedCoords()) {
+             locationModel.useRealCoords();
+             button.setText("Mock Location");
+        } else {
+            Intent intent = new Intent(this, MockLocationActivity.class);
+            activityResultLauncher.launch(intent);
+        }
     }
 }

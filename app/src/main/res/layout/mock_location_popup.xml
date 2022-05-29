@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FFFFFF">
+
+    <EditText
+        android:id="@+id/enter_json"
+        android:layout_width="match_parent"
+        android:layout_height="558sp"
+        android:hint="Enter Mock Location JSON..."
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:scrollHorizontally="false"
+        android:singleLine="false"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.452"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="103dp"
+        android:layout_height="63dp"
+        android:layout_alignBottom="@+id/enter_json"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="27dp"
+        android:onClick="onSaveButtonClick"
+        android:text="Save"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.452"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.600" />
+
+    <Button
+        android:id="@+id/close_button"
+        android:layout_width="113dp"
+        android:layout_height="58dp"
+        android:layout_alignBottom="@+id/enter_json"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="31dp"
+        android:onClick="onCloseButtonClick"
+        android:text="Close"
+        android:textSize="20sp" />
+
+</RelativeLayout>
