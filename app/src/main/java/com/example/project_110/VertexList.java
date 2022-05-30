@@ -13,18 +13,27 @@ import java.util.Set;
 
 // Vertex List Class
 public class VertexList {
-    Map<String, ZooData.VertexInfo> nodeList;                       // Map declaration of (id, Vertex info) -- container for ZooData
+    public static Map<String, ZooData.VertexInfo> nodeList;                       // Map declaration of (id, Vertex info) -- container for ZooData
     Map<String, List<ZooData.VertexInfo>> searchMap;                // Map declaration of (tag, all vertices info)
+
     public VertexList(Map<String, ZooData.VertexInfo> nodeList){    // public class method to call/build nodeList & searchable map
         this.nodeList = nodeList;
         this.searchMap = new HashMap<>();
         this.makeMap();
     }
 
+
+
+    public ZooData.VertexInfo getParentNode(String nodeId){
+
+        return null;
+    }
+
     // Builds searchable Map
     private void makeMap(){
         for(Map.Entry<String, ZooData.VertexInfo> m : nodeList.entrySet()){
             ZooData.VertexInfo info = m.getValue();
+
             if(!info.kind.equals(ZooData.VertexInfo.Kind.EXHIBIT)) {        // exclude vertex nodes with non-"Exhibit" tags
                 continue;
             }
