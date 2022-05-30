@@ -1,5 +1,6 @@
 package com.example.project_110;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -10,32 +11,71 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
+
+import android.util.Log;
+
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
+import androidx.lifecycle.ViewModelProvider;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
-public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to ExhibitActivity
+public class UpdateDirectionsActivity extends AppCompatActivity {
     private List<String> directionsList = new ArrayList<>();
     private List<String> briefDirectionsList = new ArrayList<>();
+
     private ArrayAdapter adapter;
     private List<VertexInfoStorable> shortestVertexOrder;
     private Map<String, ZooData.VertexInfo> vInfo;
     private Map<String, ZooData.EdgeInfo> eInfo;
     private Graph<String, IdentifiedWeightedEdge> g;
+
+    private RouteProgressViewModel viewModel;
     private int counter;
+    private boolean restarting;
+    private Button button;
+
+    LocationPermissionChecker permissionChecker;
+    private LocationModel locationModel;
+    ActivityResultLauncher<Intent> activityResultLauncher;
     private ListView listView;
     private Switch dirSwitch;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        System.out.println("OnCreate");
+        restarting = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_directions);
+
+        viewModel = new ViewModelProvider(this)
+                .get(RouteProgressViewModel.class);
+
         shortestVertexOrder = getIntent().getParcelableArrayListExtra("shortestVertexOrder");
         vInfo = ZooData.loadVertexInfoJSON(this, "zoo_node_new.json");
         eInfo = ZooData.loadEdgeInfoJSON(this, "zoo_edge_new.json");
@@ -58,6 +98,71 @@ public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to Ex
             }
         });
 
+        // Location stuff
+        {
+           permissionChecker = new LocationPermissionChecker(this);
+           permissionChecker.ensurePermissions();
+
+           locationModel = new ViewModelProvider(this).get(LocationModel.class);
+           LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+           String provider = LocationManager.GPS_PROVIDER;
+           locationModel.addLocationProviderSource(locationManager, provider);
+        }
+
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        System.out.println("B");
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            String mockLocationString = data.getStringExtra("mockLocation");
+                            try {
+                                if (mockLocationString.length() != 0) {
+                                    Gson gson = new Gson();
+                                    Coord[] mockedCoordsArray = gson.fromJson(mockLocationString, Coord[].class);
+                                    List<Coord> mockedCoordsList = new ArrayList<>(Arrays.asList(mockedCoordsArray));
+                                    locationModel.removeLocationProviderSource();
+                                    locationModel.mockRoute(mockedCoordsList, 10, TimeUnit.SECONDS);
+                                    button.setText("Use Real Location");
+                                }
+                                // Log.d("My App", mockLocationJson.toString());
+                            } catch (JsonSyntaxException j) {
+                                Log.e("My App", "Could not parse malformed JSON: \"" + mockLocationString + "\"");
+                            }
+                        }
+                    }
+                });
+        button = findViewById(R.id.mock_location_button);
+    }
+
+    @Override
+    protected void onPause() {
+        System.out.println("Pause");
+        super.onPause();
+        // TODO: change third parameter to what the user is actually seeing once the previous is implemented
+        if (!restarting)
+            viewModel.storeRouteProgressItem(shortestVertexOrder, counter - 1, counter- 1);
+    }
+
+    @Override
+    protected void onResume() {
+        System.out.println("Resume");
+        super.onResume();
+        System.out.println(viewModel == null);
+        RouteProgressItem item = viewModel.loadRouteProgressItem();
+        System.out.println("a");
+        if (item != null) {
+            System.out.println("Item is not null");
+            this.shortestVertexOrder = item.shortestVertexOrder;
+            this.counter = item.currDestInd;
+            System.out.println("Resume sets counter: " + this.counter);
+            generateDetailed();
+            //nextDirection();
+        }
+        System.out.println("b");
+        // TODO: set the current view to the direction at index item.currViewInd
     }
 
 
@@ -83,10 +188,12 @@ public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to Ex
             Button disableNext = (Button) findViewById(R.id.next_button);
             disableNext.setClickable(false);
         }
+
         String start = shortestVertexOrder.get(counter).id;
         //counter+=1;
         int nextCounter = counter+1;
         String next = shortestVertexOrder.get(nextCounter).id;
+
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, start, next);
         int i = 1;
@@ -113,6 +220,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to Ex
             directionsList.add(direction);
             currVertex = target.id;
         }
+
     }
 
     public void generateBrief(){
@@ -347,4 +455,26 @@ public class UpdateDirectionsActivity extends AppCompatActivity { //Rename to Ex
         this.briefDirectionsList = return_briefDirections;
 
     } // end of brief_directionsList implementation
+
+
+
+    public void onClearPlanBtnClick(View view) {
+        restarting = true;
+        System.out.println("onClearPlanBtnClick");
+        viewModel.clearAllItems();
+        Intent i=new Intent(this, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+    }
+
+    public void onMockLocationBtnClick(View view) {
+        if (locationModel.isUsingMockedCoords()) {
+             locationModel.useRealCoords();
+             button.setText("Mock Location");
+        } else {
+            Intent intent = new Intent(this, MockLocationActivity.class);
+            activityResultLauncher.launch(intent);
+        }
+    }
+
 }

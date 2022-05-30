@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MockLocationActivity">
+
+    <EditText
+        android:id="@+id/enter_json"
+        android:layout_width="397dp"
+        android:layout_height="489dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="76dp"
+        android:hint="Enter Mock Location JSON..."
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:scrollbars="vertical"
+        android:scrollHorizontally="false"
+        android:singleLine="false"
+        android:textSize="20sp"
+        android:gravity="top|left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="103dp"
+        android:layout_height="63dp"
+        android:layout_alignBottom="@+id/enter_json"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="4dp"
+        android:onClick="onSaveButtonClick"
+        android:text="Save"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/enter_json"
+        app:layout_constraintEnd_toEndOf="@+id/enter_json" />
+
+    <Button
+        android:id="@+id/cancel_button"
+        android:layout_width="134dp"
+        android:layout_height="52dp"
+        android:layout_alignBottom="@+id/enter_json"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="onCancelButtonClick"
+        android:text="Cancel"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/enter_json"
+        app:layout_constraintStart_toStartOf="@+id/enter_json" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

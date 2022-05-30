@@ -1,7 +1,6 @@
 package com.example.project_110;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -11,12 +10,13 @@ import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 
-@Database(entities = {VertexInfoStorable.class}, version = 1, exportSchema = false)
+@Database(entities = {VertexInfoStorable.class, RouteProgressItem.class}, version = 1, exportSchema = false)
 public abstract class VertexDatabase extends RoomDatabase{
     
     
     private static VertexDatabase singleton = null;
     public abstract VertexInfoStorableDao vertexInfoDao();
+    public abstract RouteProgressItemDao routeProgressItemDao();
 
     public synchronized static VertexDatabase getSingleton(Context context){
         if (singleton ==null){
@@ -46,8 +46,8 @@ public abstract class VertexDatabase extends RoomDatabase{
                     }
                 })
 
-
                 .build();
+
     }
     @VisibleForTesting
     public static void injectTestDatabase(VertexDatabase testDatabase){

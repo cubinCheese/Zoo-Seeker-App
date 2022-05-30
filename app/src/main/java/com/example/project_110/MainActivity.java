@@ -1,11 +1,9 @@
 package com.example.project_110;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Intent;
 import android.os.Bundle;
 
-
-import android.content.Intent;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,6 +15,4 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SearchDisplayActivity.class);
         startActivity(intent);
     }
-
-
 }
