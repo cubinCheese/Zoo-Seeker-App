@@ -21,7 +21,7 @@
             android:name=".PlanActivity"
             android:exported="false" />
         <activity
-            android:name=".FirstNewExhibitActivity"
+            android:name=".UpdateDirectionsActivity"
             android:exported="false" />
         <activity
             android:name=".SearchDisplayActivity"

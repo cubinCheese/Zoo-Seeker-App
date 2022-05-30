@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class FirstNewExhibitActivity extends AppCompatActivity {
+public class UpdateDirectionsActivity extends AppCompatActivity {
     private List<String> directionsList;
     private ArrayAdapter adapter;
     private List<VertexInfoStorable> shortestVertexOrder;
@@ -52,7 +52,7 @@ public class FirstNewExhibitActivity extends AppCompatActivity {
         System.out.println("OnCreate");
         restarting = false;
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_first_new_exhibit);
+        setContentView(R.layout.activity_update_directions);
 
         shortestVertexOrder = getIntent().getParcelableArrayListExtra("shortestVertexOrder");
         vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
