@@ -45,42 +45,44 @@ public class PlanActivity extends AppCompatActivity {
         exhibitNames = new ArrayList<>();
         exhibitDists = new ArrayList<>();
         exhibitStName = new ArrayList<>();
-//        exhibitDists.add(0);
+        exhibitDists.add(0);
 
-//        shortestVertexOrder_clean.remove(shortestVertexOrder.size()-1);
-//        for(int i = 0; i<shortestVertexOrder.size()-1; i++){
-//            int index = i;
-//            int distanceCount = 0;
-//
-//            GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, shortestVertexOrder.get(index).id, shortestVertexOrder.get(++index).id);
-//            for (int j = 0; j<path.getEdgeList().size(); j++){
-//                distanceCount+= g.getEdgeWeight(path.getEdgeList().get(j));
-//                if(j == path.getEdgeList().size()-1){
-//                    exhibitStName.add(eInfo.get(path.getEdgeList().get(j).getId()).street);
-//                }
-//            }
-//            exhibitDists.add(distanceCount);
-//        }
-//
-//        shortestVertexOrder_clean.remove(0);
-//        for(int i = 0; i<shortestVertexOrder_clean.size(); i++){
-//            exhibitNames.add(shortestVertexOrder_clean.get(i).name);
-//        }
-//
-//        List<String> exhibitInfo = new ArrayList<>();
-//        for(int i = 0; i<exhibitNames.size(); i++){
-//            String info = exhibitNames.get(i) + "--" + exhibitDists.get(i) + "--" + exhibitStName.get(i);
-//            exhibitInfo.add(info);
-//        }
-//
-//        shortestVertexOrder_clean = shortestVertexOrder;
-//        adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, exhibitInfo);
-//        listView = (ListView) findViewById(R.id.planList);
-//        listView.setAdapter(adapter);
+        shortestVertexOrder_clean.remove(shortestVertexOrder.size()-1);
+        for(int i = 0; i<shortestVertexOrder.size()-1; i++){
+            int index = i;
+            int distanceCount = 0;
 
-        //System.out.println("Optimal exhibit order (PlanActivity.java): ");
-        //for (VertexInfoStorable v : shortestVertexOrder)
-        //    System.out.println(v.name);
+            GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, shortestVertexOrder.get(index).id, shortestVertexOrder.get(++index).id);
+            for (int j = 0; j<path.getEdgeList().size(); j++){
+                distanceCount+= g.getEdgeWeight(path.getEdgeList().get(j));
+                if(j == path.getEdgeList().size()-1){
+                    exhibitStName.add(eInfo.get(path.getEdgeList().get(j).getId()).street);
+                }
+            }
+            exhibitDists.add(distanceCount);
+        }
+//        System.out.println(exhibitDists);
+
+        shortestVertexOrder_clean.remove(0);
+        for(int i = 0; i<shortestVertexOrder_clean.size(); i++){
+            exhibitNames.add(shortestVertexOrder_clean.get(i).name);
+        }
+        System.out.println(exhibitStName);
+        List<String> exhibitInfo = new ArrayList<>();
+        for(int i = 0; i<exhibitNames.size(); i++){
+            String info = exhibitNames.get(i) + " -- " + exhibitDists.get(i+1) + " meters -- " + exhibitStName.get(i);
+            exhibitInfo.add(info);
+        }
+
+        shortestVertexOrder_clean = shortestVertexOrder;
+        adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, exhibitInfo);
+        listView = (ListView) findViewById(R.id.planList);
+        listView.setAdapter(adapter);
+
+        System.out.println("Optimal exhibit order (PlanActivity.java): ");
+        for (VertexInfoStorable v : shortestVertexOrder)
+            System.out.println(v.name);
+
     }
 
     public void onDirectionsButtonClick(View view) {
