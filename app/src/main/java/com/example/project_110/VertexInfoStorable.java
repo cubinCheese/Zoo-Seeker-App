@@ -86,10 +86,17 @@ public class VertexInfoStorable implements Parcelable {
     }
 
     public VertexInfoStorable getParent(){
-        if(this.parent_id != null){
+        if(!this.parent_id.equals("")){
             return new VertexInfoStorable(VertexList.nodeList.get(this.parent_id));
         }
-        return null;
+        return this;
+    }
+
+    public boolean hasParent(){
+        if(!this.parent_id.equals("")){
+            return true;
+        }
+        return false;
     }
 
     public ZooData.VertexInfo unPack(){

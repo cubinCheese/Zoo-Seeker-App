@@ -115,6 +115,11 @@ public class SearchDisplayActivity extends AppCompatActivity {
         return searchListViewModel.getSelectedExhibits();
     }
     public void onPlanButtonClick(View view) {
+
+        if (getSelectedExhibitsList().size() == 0) {
+            return;
+        }
+
         Intent intent = new Intent(this, PlanActivity.class);
         intent.putParcelableArrayListExtra("selectedExhibitsList", (ArrayList<VertexInfoStorable>) getSelectedExhibitsList());
         startActivity(intent);

@@ -98,6 +98,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
             }
         });
 
+        System.out.println("Starting Location Stuff (Permissions)");
         // Location stuff
         {
            permissionChecker = new LocationPermissionChecker(this);
@@ -109,6 +110,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
            locationModel.addLocationProviderSource(locationManager, provider);
         }
 
+        System.out.println("Init activityResultLauncher (for mocking activity)");
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -135,6 +137,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
                     }
                 });
         button = findViewById(R.id.mock_location_button);
+        System.out.println("End of OnCreate");
     }
 
     @Override
@@ -143,7 +146,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         super.onPause();
         // TODO: change third parameter to what the user is actually seeing once the previous is implemented
         if (!restarting)
-            viewModel.storeRouteProgressItem(shortestVertexOrder, counter - 1, counter- 1);
+            viewModel.storeRouteProgressItem(shortestVertexOrder, counter, counter);
     }
 
     @Override
@@ -189,18 +192,33 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
             disableNext.setClickable(false);
         }
 
-        String start = shortestVertexOrder.get(counter).id;
+        String start = shortestVertexOrder.get(counter).getParent().id;
         //counter+=1;
         int nextCounter = counter+1;
-        String next = shortestVertexOrder.get(nextCounter).id;
+        String next = shortestVertexOrder.get(nextCounter).getParent().id;
+        VertexInfoStorable destination = shortestVertexOrder.get(nextCounter);
 
+        //if the two exhibits share the same parent
+        if (start.equals(next)) {
+            String direction = String.format("  %d. Remain in '%s', and find '%s' inside.\n",
+                        1,
+                        destination.getParent().name,
+                        destination.name);
+            directionsList.add(direction);
+            return;
+        }
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, start, next);
         int i = 1;
 
         String currVertex = start;
 
+        int edgeCount = path.getEdgeList().size();
+        int loopCount = 0;
+
         for (IdentifiedWeightedEdge e : path.getEdgeList()) {
+
+
             ZooData.VertexInfo source = vInfo.get(g.getEdgeSource(e).toString());
             ZooData.VertexInfo target = vInfo.get(g.getEdgeTarget(e).toString());
             if (currVertex.equals(target.id)) {
@@ -210,15 +228,30 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
                 source = temp;
             }
 
-            String direction = String.format("  %d. Walk %.0f meters along %s from '%s' to '%s'.\n",
-                    i,
-                    g.getEdgeWeight(e),
-                    eInfo.get(e.getId()).street,
-                    source.name,
-                    target.name);
-            i++;
-            directionsList.add(direction);
-            currVertex = target.id;
+            if (loopCount != edgeCount-1 || !destination.hasParent() ) {
+                String direction = String.format("  %d. Walk %.0f meters along %s from '%s' to '%s'.\n",
+                        i,
+                        g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street,
+                        source.name,
+                        target.name);
+                i++;
+                directionsList.add(direction);
+                currVertex = target.id;
+            } else {
+                String direction = String.format("  %d. Walk %.0f meters along %s from '%s' to '%s', and find '%s' inside.\n",
+                        i,
+                        g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street,
+                        source.name,
+                        destination.getParent().name,
+                        destination.name);
+                i++;
+                directionsList.add(direction);
+                currVertex = target.id;
+            }
+
+            loopCount++;
         }
 
     }
@@ -288,6 +321,10 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
     // setter for brief directions list
     public void setBrief_Directions_List() {
         // this.brief_Directions_List = brief_Directions_List;
+        if (this.directionsList.size() == 1) {
+            this.briefDirectionsList = this.directionsList;
+            return;
+        }
 
         List<String> tempDetailed_DL = this.directionsList; //detailed_Directions_List; // local copy of list
         List<String> temp_List_ofID = new ArrayList<>(); // ordering parallels detailed_Directions_List
