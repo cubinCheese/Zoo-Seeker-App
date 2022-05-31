@@ -5,23 +5,28 @@ import android.util.Log;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LocationUpdater extends Thread{
 
-    private List<VertexInfoStorable> unvisitedExhibits;
-    private List<VertexInfoStorable> exhibitsInPlan;
-    private List<VertexInfoStorable> visitedExhibits;
-    private String nextExhibit;
-    private Coord currentLocation;
-    private LocationModel locationModel;
-    private Map<String, ZooData.VertexInfo> vInfo;
-    private Map<String, ZooData.EdgeInfo> eInfo;
-    private Graph<String, IdentifiedWeightedEdge> graph;
-    private Graph<String, CoordinateEdge> coordGraph;
-
+    //changed these to public so UpdateDirectionsActivity can access easily
+    public List<VertexInfoStorable> unvisitedExhibits;
+    public List<VertexInfoStorable> exhibitsInPlan;
+    public List<VertexInfoStorable> visitedExhibits;
+    public String nextExhibit;
+    public Coord currentLocation;
+    public LocationModel locationModel;
+    public Map<String, ZooData.VertexInfo> vInfo;
+    public Map<String, ZooData.EdgeInfo> eInfo;
+    public Graph<String, IdentifiedWeightedEdge> graph;
+    //public Graph<String, CoordinateEdge> coordGraph; <-- replaced with map below
+    public Map<IdentifiedWeightedEdge, List<Coord>> edgeIDtoCoordStream;
 
 
 
@@ -30,10 +35,12 @@ public class LocationUpdater extends Thread{
     public LocationUpdater(List<VertexInfoStorable> exhibitsInPlan, String nextExhibit,LocationModel locationModel,
                            Map<String, ZooData.VertexInfo> vInfo,Map<String, ZooData.EdgeInfo> eInfo,
                            Graph<String, IdentifiedWeightedEdge> graph){
-        unvisitedExhibits=Collections.EMPTY_LIST;
-        visitedExhibits=Collections.EMPTY_LIST;
+        unvisitedExhibits = new ArrayList<>();
+        visitedExhibits = new ArrayList<>();
+        edgeIDtoCoordStream = new HashMap<>();
         this.exhibitsInPlan=exhibitsInPlan;
 
+        //fills unvisitedExhibits and visitedExhibits lists based on nextExhibit
         boolean beginAdding = false;
         for(VertexInfoStorable i: exhibitsInPlan){
             if(i.id.equals(nextExhibit)){
@@ -49,7 +56,7 @@ public class LocationUpdater extends Thread{
         this.eInfo=eInfo;
         this.vInfo=vInfo;
         this.graph=graph;
-        coordGraph = new DefaultUndirectedWeightedGraph<>(CoordinateEdge.class);
+        //coordGraph = new DefaultUndirectedWeightedGraph<>(CoordinateEdge.class);
 
         String source;
         String target;
@@ -63,17 +70,26 @@ public class LocationUpdater extends Thread{
              target = graph.getEdgeTarget(i);
              sourceInfo = vInfo.get(source);
              targetInfo = vInfo.get(target);
+             System.out.println(source + " " + target);
              sourceCoord = new Coord(sourceInfo.lat,sourceInfo.lng);
              targetCoord = new Coord(targetInfo.lat, targetInfo.lng);
-            coordGraph.addEdge(source,target,
-                    new CoordinateEdge(i, Coords.interpolate(sourceCoord,targetCoord,100)));
+            System.out.println(sourceCoord + " " + targetCoord);
+
+            Stream<Coord> coordStream = Coords.interpolate(sourceCoord,targetCoord,100);
+            List<Coord> coordList = coordStream.collect(Collectors.toList());
+            edgeIDtoCoordStream.put(i,coordList);
+             //coordGraph.addEdge(source,target,
+             //       new CoordinateEdge(i, Coords.interpolate(sourceCoord,targetCoord,100)));
         }
 
 
     }
+
+
+    //fills unvisitedExhibits and visitedExhibits lists based on new nextExhibit or new ExhibitOrder (below)
     private void updateVisitedExhibits(){
-        unvisitedExhibits=Collections.EMPTY_LIST;
-        visitedExhibits=Collections.EMPTY_LIST;
+        unvisitedExhibits=new ArrayList<>();
+        visitedExhibits=new ArrayList<>();
         boolean beginAdding = false;
         for(VertexInfoStorable i: exhibitsInPlan){
             if(i.id.equals(nextExhibit)){
@@ -83,39 +99,42 @@ public class LocationUpdater extends Thread{
             else visitedExhibits.add(i);
         }
     }
-
-
+    public void updateExhibitOrder(List<VertexInfoStorable> updatedExhibitOrder){
+        exhibitsInPlan = updatedExhibitOrder;
+        updateVisitedExhibits();
+    }
     public void updateNextExhibit(String nextExhibit){
-
         this.nextExhibit=nextExhibit;
         updateVisitedExhibits();
-
-
     }
 
-    private ExactLocation findExactLocation(Coord currentLoc){
-        Coord currentPosition=currentLoc;
-        Coord closestCoord = new Coord(0,0);
+
+    // Takes current location and finds closest Coord on edge, which is ExactLocation obj
+    public ExactLocation findExactLocation(Coord currentLoc){
+        Coord closestCoord = new Coord(Double.MAX_VALUE,Double.MAX_VALUE);
         String closestEdge = "";
         Coord targetCoord = null;
         Coord sourceCoord=null;
         String sourceName = "";
         String targetName="";
-        for (CoordinateEdge i: coordGraph.edgeSet()){
-            for(Coord c: i.getCoords().toArray(Coord[]::new)){
-                if (DistanceChecker.getDistance(currentPosition,closestCoord)<DistanceChecker.getDistance(currentPosition,c)){
+        //for (CoordinateEdge i: coordGraph.edgeSet()){
+        for (IdentifiedWeightedEdge i: edgeIDtoCoordStream.keySet()) {
+            for(Coord c: edgeIDtoCoordStream.get(i)){
+                //If Coord c is closer to current location than closestCoord, update closestCoord.
+                //(was previously less than (<), we think that was a mistake)
+                if (DistanceChecker.getDistance(currentLoc,closestCoord) > DistanceChecker.getDistance(currentLoc,c)){
                     closestCoord = c;
-                    closestEdge = i.getEdge().getId();
-                    sourceCoord= new Coord(vInfo.get(coordGraph.getEdgeSource(i)).lat,vInfo.get(coordGraph.getEdgeSource(i)).lng);
-                    targetCoord = new Coord(vInfo.get(coordGraph.getEdgeTarget(i)).lat,vInfo.get(coordGraph.getEdgeTarget(i)).lng);
-                    sourceName = graph.getEdgeSource(i.getEdge());
-                    targetName = graph.getEdgeTarget(i.getEdge());
+                    closestEdge = i.getId();
+                    sourceCoord= new Coord(vInfo.get(graph.getEdgeSource(i)).lat,vInfo.get(graph.getEdgeSource(i)).lng);
+                    targetCoord = new Coord(vInfo.get(graph.getEdgeTarget(i)).lat,vInfo.get(graph.getEdgeTarget(i)).lng);
+                    sourceName = graph.getEdgeSource(i);
+                    targetName = graph.getEdgeTarget(i);
 
                 }
 
             }
         }
-        return new ExactLocation(closestEdge,closestCoord,sourceCoord,targetCoord,sourceName,targetName);
+        return new ExactLocation(closestEdge,currentLoc,closestCoord,sourceCoord,targetCoord,sourceName,targetName);
     }
 
 
@@ -123,19 +142,14 @@ public class LocationUpdater extends Thread{
         return findExactLocation(currentLocation);
     }
 
-    public void updateExhibitOrder(List<VertexInfoStorable> updatedExhibitOrder){
-        exhibitsInPlan = updatedExhibitOrder;
-        updateVisitedExhibits();
-    }
-
     //Thread Method: launch and maintain thread
+    //NOTE: Instead of directly calling this method, we copied the code into the thread in
+    // UpdateDirectionsActivity. We did this cause we need part of this to be on the UI thread.
     public void run(){
-
 
         //start thread
         //(while true){
         try {
-
 
             currentLocation = locationModel.getLastKnownCoords().getValue();
             ExactLocation exactLocation = findExactLocation(currentLocation);
@@ -147,12 +161,17 @@ public class LocationUpdater extends Thread{
                     tempGraph.setEdgeWeight(i, tempGraph.getEdgeWeight(i) + exactLocation.getDistanceFromSource());
                 }
                 if (i.getId().equals(exactLocation.edgeName)) {
-                    tempGraph.setEdgeWeight(i, exactLocation.getDisanceToTarget());
+                    tempGraph.setEdgeWeight(i, exactLocation.getDistanceToTarget());
                 }
             }
             List<VertexInfoStorable> updatedVertexOrder = UpdatePathAlgorithm.shortestPath(tempGraph, unvisitedExhibits, exactLocation.getSourceName());
-            if (!updatedVertexOrder.equals(exhibitsInPlan)) {
+
+            //if the newly calculated shortest route order for remaining exhibits is different than what it was before
+            // (changed the value in .equals from exhibitsInPlan to unvisitedExhibits
+            if (!updatedVertexOrder.equals(unvisitedExhibits)) {
                 //Call Prompt User and pause thread
+                //TODO: make Replan message/button visible, which, when clicked, reconstructs shortestExhibitOrder, and calls update methods
+
                 wait();
             }
         }
@@ -161,25 +180,9 @@ public class LocationUpdater extends Thread{
         }
 
 
-
-
-
-
-
-
-
             //iterate through all vertices, all edges
             //if coord of edge/vertex closer than closest
             //closest = new thing
-
-
-
-
-
-
-
-
-
 
         //}
     }

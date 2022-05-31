@@ -4,6 +4,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.stream.Stream;
 
+// unused, because we just store Stream in a Map in LocationUpdater
 public class CoordinateEdge  {
 
 

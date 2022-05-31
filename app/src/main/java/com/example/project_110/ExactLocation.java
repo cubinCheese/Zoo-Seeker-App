@@ -4,11 +4,12 @@ import java.lang.annotation.Target;
 
 public class ExactLocation {
     String edgeName,sourceName,targetName;
-    Coord coord,source,target;
+    Coord realCoord, closestCoord,source,target;
 
-    public ExactLocation(String edgeName, Coord coord,Coord source, Coord target,String sourceName,String targetName) {
+    public ExactLocation(String edgeName, Coord realCoord, Coord closestCoord,Coord source, Coord target,String sourceName,String targetName) {
+        this.realCoord = realCoord;
         this.edgeName = edgeName;
-        this.coord = coord;
+        this.closestCoord = closestCoord;
         this.source=source;
         this.target=target;
         this.sourceName=sourceName;
@@ -19,8 +20,10 @@ public class ExactLocation {
         return edgeName;
     }
 
-    public Coord getCoord() {
-        return coord;
+    public Coord getRealCoord() {return realCoord;}
+
+    public Coord getClosestCoord() {
+        return closestCoord;
     }
 
     public String getSourceName(){
@@ -31,11 +34,11 @@ public class ExactLocation {
         return targetName;
     }
 
-    public double getDistanceFromSource(){return DistanceChecker.getDistance(source,coord);}
+    public int getDistanceFromSource(){return DistanceChecker.getDistance(source,closestCoord);}
 
-    public double getDisanceToTarget(){return DistanceChecker.getDistance(target, coord);}
+    public int getDistanceToTarget(){return DistanceChecker.getDistance(target, closestCoord);}
 
-
+    public int getDistanceToEdge() {return DistanceChecker.getDistance(realCoord, closestCoord);}
 
 
 

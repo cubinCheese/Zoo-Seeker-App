@@ -17,11 +17,37 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:onClick="onNextBtnClick"
-        android:text="Next Button"
+        android:text="Next"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/directions_list"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/previous_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:onClick="onPreviousBtnClick"
+        android:text="Previous"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.892"
+        app:layout_constraintHorizontal_bias="0.623"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/skip_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        android:onClick="onSkipBtnClick"
+        android:text="Skip"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/directions_list"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/directions_list"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ListView
         android:id="@+id/directions_list"
@@ -49,8 +75,8 @@
         android:onClick="onMockLocationBtnClick"
         android:text="Mock Location"
         android:textSize="10sp"
-        app:layout_constraintTop_toBottomOf="@+id/directions_list"
-        tools:layout_editor_absoluteX="15dp" />
+        app:layout_constraintStart_toStartOf="@+id/directions_list"
+        app:layout_constraintTop_toBottomOf="@+id/directions_list" />
 
     <Button
         android:id="@+id/clear_plan_button"
@@ -61,4 +87,15 @@
         android:text="Clear Plan"
         app:layout_constraintBottom_toTopOf="@+id/directions_list"
         app:layout_constraintStart_toStartOf="@+id/directions_list" />
+
+    <TextView
+        android:id="@+id/curr_location_textview"
+        android:layout_width="139dp"
+        android:layout_height="51dp"
+        android:text="Current Location: "
+        android:textSize = "10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/directions_list"
+        app:layout_constraintTop_toBottomOf="@+id/mock_location_button"
+        app:layout_constraintVertical_bias="0.448" />
 </androidx.constraintlayout.widget.ConstraintLayout>

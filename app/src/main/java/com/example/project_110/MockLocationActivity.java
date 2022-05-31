@@ -30,4 +30,11 @@ public class MockLocationActivity extends AppCompatActivity {
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
+
+    public void onMockStartClick(View view) {
+        EditText e = findViewById(R.id.enter_json);
+        String mockStart = "[{ \"lat\": 32.73561,\n" +
+                             "\"lng\": -117.14936}]";
+        e.setText(mockStart);
+    }
 }

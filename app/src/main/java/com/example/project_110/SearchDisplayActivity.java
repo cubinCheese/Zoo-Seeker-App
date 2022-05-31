@@ -84,7 +84,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
 
 
 
-
+        
         this.future = backgroundThreadExecutor.submit(() -> {
             while (true) { // TODO: change true to something that makes sense
                 runOnUiThread(() -> {
