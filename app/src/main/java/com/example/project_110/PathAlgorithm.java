@@ -13,7 +13,8 @@ public class PathAlgorithm {
     public static List<VertexInfoStorable> shortestPath(Graph<String, IdentifiedWeightedEdge> g, List<VertexInfoStorable> selected) {
         Set<String> unvisitedSelectedExhibits = new HashSet();
         for (VertexInfoStorable v : selected)
-            unvisitedSelectedExhibits.add(v.id);
+            //v.getParent().id returns string id of parent of v, or itself
+            unvisitedSelectedExhibits.add(v.getParent().id);
         String start = "entrance_exit_gate";
         unvisitedSelectedExhibits.remove(start);
         List<String> shortestExhibitOrder = new ArrayList<>();
@@ -68,11 +69,28 @@ public class PathAlgorithm {
         shortestExhibitOrder.add(shortestExhibitOrder.get(0)); // End where we started at
 
         HashMap<String, VertexInfoStorable> idToVertex = new HashMap<>();
-        for (VertexInfoStorable v : selected)
+        HashMap<String, List<VertexInfoStorable>> parentidToVertex = new HashMap<>();
+        for (VertexInfoStorable v : selected) {
+            if (v.hasParent()) {
+                String parent = v.getParent().id;
+                if (!parentidToVertex.containsKey(parent)) {
+                    ArrayList<VertexInfoStorable> arr = new ArrayList<>();
+                    parentidToVertex.put(parent, arr);
+                }
+                parentidToVertex.get(parent).add(v);
+            }
+            //gets v id or parent id if available, and maps back to original v object
             idToVertex.put(v.id, v);
+        }
         List<VertexInfoStorable> shortestVertexOrder = new ArrayList<>();
-        for (String id : shortestExhibitOrder)
-            shortestVertexOrder.add(idToVertex.get(id));
+        for (String id : shortestExhibitOrder) {
+            if (parentidToVertex.containsKey(id)) {
+                    for (VertexInfoStorable v : parentidToVertex.get(id))
+                        shortestVertexOrder.add(v);
+            } else {
+                shortestVertexOrder.add(idToVertex.get(id));
+            }
+        }
 
         return shortestVertexOrder;
     }
