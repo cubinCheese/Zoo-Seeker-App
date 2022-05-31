@@ -111,26 +111,23 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        System.out.println("B");
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            Intent data = result.getData();
-                            String mockLocationString = data.getStringExtra("mockLocation");
-                            try {
-                                if (mockLocationString.length() != 0) {
-                                    Gson gson = new Gson();
-                                    Coord[] mockedCoordsArray = gson.fromJson(mockLocationString, Coord[].class);
-                                    List<Coord> mockedCoordsList = new ArrayList<>(Arrays.asList(mockedCoordsArray));
-                                    locationModel.removeLocationProviderSource();
-                                    locationModel.mockRoute(mockedCoordsList, 10, TimeUnit.SECONDS);
-                                    button.setText("Use Real Location");
-                                }
-                                // Log.d("My App", mockLocationJson.toString());
-                            } catch (JsonSyntaxException j) {
-                                Log.e("My App", "Could not parse malformed JSON: \"" + mockLocationString + "\"");
+                result -> {
+                    System.out.println("FOOBAR");
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        String mockLocationString = data.getStringExtra("mockLocation");
+                        try {
+                            if (mockLocationString.length() != 0) {
+                                Gson gson = new Gson();
+                                Coord[] mockedCoordsArray = gson.fromJson(mockLocationString, Coord[].class);
+                                List<Coord> mockedCoordsList = new ArrayList<>(Arrays.asList(mockedCoordsArray));
+                                locationModel.removeLocationProviderSource();
+                                locationModel.mockRoute(mockedCoordsList, 10, TimeUnit.SECONDS);
+                                button.setText("Use Real Location");
                             }
+                            // Log.d("My App", mockLocationJson.toString());
+                        } catch (JsonSyntaxException j) {
+                            Log.e("My App", "Could not parse malformed JSON: \"" + mockLocationString + "\"");
                         }
                     }
                 });
@@ -143,7 +140,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         super.onPause();
         // TODO: change third parameter to what the user is actually seeing once the previous is implemented
         if (!restarting)
-            viewModel.storeRouteProgressItem(shortestVertexOrder, counter - 1, counter- 1);
+            viewModel.storeRouteProgressItem(shortestVertexOrder, counter, counter);
     }
 
     @Override

@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class PlanActivity extends AppCompatActivity {
     private List<VertexInfoStorable> shortestVertexOrder;
-    private List<VertexInfoStorable> shortestVertexOrder_clean;
+    private List<VertexInfoStorable> shortestVertexOrder_clean = new ArrayList<>();
     private List<String> exhibitNames;
     private List<Integer> exhibitDists;
     private List<String> exhibitStName;
@@ -39,8 +39,10 @@ public class PlanActivity extends AppCompatActivity {
         // go through map, get(vInfo where .Kind.Gate)
 
         shortestVertexOrder = PathAlgorithm.shortestPath(g, selectedExhibitsList);
-        shortestVertexOrder_clean = shortestVertexOrder;
 
+        for(VertexInfoStorable v : shortestVertexOrder){
+            shortestVertexOrder_clean.add(v);
+        }
 
         exhibitNames = new ArrayList<>();
         exhibitDists = new ArrayList<>();
@@ -48,9 +50,10 @@ public class PlanActivity extends AppCompatActivity {
         exhibitDists.add(0);
 
         shortestVertexOrder_clean.remove(shortestVertexOrder.size()-1);
+        int distanceCount = 0;
         for(int i = 0; i<shortestVertexOrder.size()-1; i++){
             int index = i;
-            int distanceCount = 0;
+
 
             GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, shortestVertexOrder.get(index).id, shortestVertexOrder.get(++index).id);
             for (int j = 0; j<path.getEdgeList().size(); j++){
