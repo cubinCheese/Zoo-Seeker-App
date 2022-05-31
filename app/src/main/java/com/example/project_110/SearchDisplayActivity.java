@@ -45,9 +45,9 @@ public class SearchDisplayActivity extends AppCompatActivity {
         searchListViewModel = new ViewModelProvider(this)
                 .get(SearchListViewModel.class);
         // initializing new Map searchable by tags // & list of vertex info
-        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
-        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
-        Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "sample_edge_info.json");
+        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "zoo_graph_new.json");
+        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "zoo_node_new.json");
+        Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "zoo_edge_new.json");
         VertexList vertexList = new VertexList(vInfo);
 //        System.out.println(vertexList.search("bird").size());
 
@@ -115,6 +115,11 @@ public class SearchDisplayActivity extends AppCompatActivity {
         return searchListViewModel.getSelectedExhibits();
     }
     public void onPlanButtonClick(View view) {
+
+        if (getSelectedExhibitsList().size() == 0) {
+            return;
+        }
+
         Intent intent = new Intent(this, PlanActivity.class);
         intent.putParcelableArrayListExtra("selectedExhibitsList", (ArrayList<VertexInfoStorable>) getSelectedExhibitsList());
         startActivity(intent);
