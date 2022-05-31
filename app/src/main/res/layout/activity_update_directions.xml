@@ -49,20 +49,39 @@
         app:layout_constraintTop_toBottomOf="@+id/directions_list"
         app:layout_constraintVertical_bias="1.0" />
 
+    <Button
+        android:id="@+id/replan_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        android:backgroundTint="@color/purple_500"
+        android:clickable="false"
+        android:onClick="onReplanBtnClick"
+        android:text="\\(^-^)/"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/directions_list"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/previous_button"
+        app:layout_constraintTop_toBottomOf="@+id/directions_list"
+        app:layout_constraintVertical_bias="1.0" />
+
     <ListView
         android:id="@+id/directions_list"
-        android:layout_width="381dp"
-        android:layout_height="529dp"
+        android:layout_width="389dp"
+        android:layout_height="453dp"
         app:layout_constraintBottom_toTopOf="@+id/next_button"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.64" />
 
     <Switch
         android:id="@+id/d_b_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="12dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="56dp"
         android:minHeight="48dp"
         android:text="Detailed/Brief"
         app:layout_constraintBottom_toTopOf="@+id/directions_list"
@@ -70,19 +89,25 @@
 
     <Button
         android:id="@+id/mock_location_button"
-        android:layout_width="141dp"
-        android:layout_height="53dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:onClick="onMockLocationBtnClick"
         android:text="Mock Location"
         android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/replan_button"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/directions_list"
-        app:layout_constraintTop_toBottomOf="@+id/directions_list" />
+        app:layout_constraintTop_toBottomOf="@+id/directions_list"
+        app:layout_constraintVertical_bias="0.139" />
 
     <Button
         android:id="@+id/clear_plan_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="56dp"
         android:onClick="onClearPlanBtnClick"
         android:text="Clear Plan"
         app:layout_constraintBottom_toTopOf="@+id/directions_list"
@@ -92,10 +117,25 @@
         android:id="@+id/curr_location_textview"
         android:layout_width="139dp"
         android:layout_height="51dp"
+        android:layout_marginStart="8dp"
         android:text="Current Location: "
-        android:textSize = "10sp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/directions_list"
         app:layout_constraintTop_toBottomOf="@+id/mock_location_button"
         app:layout_constraintVertical_bias="0.448" />
+
+    <TextView
+        android:id="@+id/target_exhibit_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To: "
+        android:textSize="30sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/directions_list"
+        app:layout_constraintEnd_toEndOf="@+id/directions_list"
+        app:layout_constraintHorizontal_bias="0.079"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.863" />
 </androidx.constraintlayout.widget.ConstraintLayout>

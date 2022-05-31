@@ -3,6 +3,8 @@ package com.example.project_110;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -68,6 +70,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
     private LocationModel locationModel;
     ActivityResultLauncher<Intent> activityResultLauncher;
     private ListView listView;
+    private Button replanButton;
     private Switch dirSwitch;
     private boolean onBrief;
 
@@ -76,6 +79,13 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
     private Future<Void> future;
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+
+    private List<VertexInfoStorable> unvisitedExhibits;
+    private List<VertexInfoStorable> visitedExhibits;
+    private List<VertexInfoStorable> tempUnvExhibits;
+    private String closestVertex;
+    private boolean dontRemoveFirst;
+    private boolean briefDisable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,8 +107,16 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
             g = ZooData.loadZooGraphJSON(this, "zoo_graph_new.json");
 
             counter = 0;
+            updateVisitedExhibits();
+            tempUnvExhibits = new ArrayList<>();
 
             onBrief = false;
+
+            //replan button
+            replanButton = (Button) findViewById(R.id.replan_button);
+            dontRemoveFirst = false;
+            briefDisable = false;
+
             // switch
             {
                 dirSwitch = (Switch) findViewById(R.id.d_b_switch);
@@ -174,6 +192,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         locationUpdater = new LocationUpdater(shortestVertexOrder, shortestVertexOrder.get(1).id,
                 locationModel, vInfo, eInfo, g);
 
+        updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
 
         this.future = backgroundThreadExecutor.submit(() -> {
             while (true) { // TODO: change true to something that makes sense
@@ -191,8 +210,9 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
                             updateLocationView(locationUpdater.currentLocation.toString());
 
 
+                            //TODO: for some reason this code crashes when outside the UI thread
 
-                            // **** updates directionsList based on exactLocationInfo (US 6) ****
+                            // **** updates directionsList based on exactLocationInfo (US 6) + US 7 ****
                             {
                                 int startNumber = 1;
                                 List<String> currDirList = new ArrayList<>();
@@ -214,7 +234,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
                                             startNumber,
                                             distancetoEdge,
                                             "the beaten path",
-                                            "off-road",
+                                            "your current location (off-road)",
                                             eInfo.get(exactLocation.getEdgeName()).street);
                                     currDirList.add(dir);
                                     startNumber++;
@@ -234,6 +254,8 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
                                 int edgeSourceDist = exactLocation.getDistanceFromSource();
                                 int edgeTargetDist = exactLocation.getDistanceToTarget();
+
+                                closestVertex = (edgeSourceDist < edgeTargetDist) ?  edgeSource : edgeTarget;
 
                                 //System.out.println("disttoSource: " + edgeSourceDist);
                                 //System.out.println("disttoTarget: " + edgeTargetDist);
@@ -288,7 +310,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
                                                 startNumber,
                                                 distToFirstVertex,
                                                 eInfo.get(exactLocation.getEdgeName()).street,
-                                                "your current location",
+                                                "your location",
                                                 vInfo.get(firstVertex).name);
                                         currDirList.add(dir);
                                         startNumber++;
@@ -299,6 +321,9 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
                                 //continue printing path (generateDetailed)==============================
                                 //---(if switch on brief, generate brief after...
+
+                                //shallow copy directionsList to see if anything changed
+                                List<String> tempDirectionsList = new ArrayList<>(directionsList);
 
                                 //if we were off road/in the middle of an edge, add the 2 dirs to directionsList
                                 directionsList.clear();
@@ -311,43 +336,95 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
                                 generateDetailed(startNumber,firstVertex,next,destination);
                                 generateBrief();
 
-                                //** ON UI THREAD ** update view (with directionsList or briefDirectionsList
-                                runOnUiThread(() -> {
-                                    if (!onBrief) {
-                                        updateView(directionsList);
-                                    }
-                                    else {
-                                        updateView(briefDirectionsList);
-                                    }
-                                });
+                                //System.out.println(tempDirectionsList);
+                                //System.out.println(directionsList);
 
+                                //only updates and refreshes UI if anything changed.
+                                if(!tempDirectionsList.equals(directionsList)) {
+
+                                    //** ON UI THREAD ** update view (with directionsList or briefDirectionsList
+                                    runOnUiThread(() -> {
+                                        if (!onBrief) {
+                                            updateView(directionsList);
+                                        }
+                                        else {
+                                            updateView(briefDirectionsList);
+                                        }
+                                    });
+                                }
+
+
+
+
+
+                                //TODO: USER STORY 7 REPLAN STUFF
+                                //firstVertex + unvisited exhibits
+                                List<VertexInfoStorable> uExhibitsFirstVertex = new ArrayList<>();
+
+                                //only add first Vertex if that's not the next exhibit
+                                if(!firstVertex.equals(unvisitedExhibits.get(0).id)) {
+                                    uExhibitsFirstVertex.add(new VertexInfoStorable(vInfo.get(firstVertex)));
+                                }
+
+                                //raise dontRemoveFirst flag if firstVertex is one of our exhibits to visit
+                                boolean tempDontRemove = false;
+                                for (VertexInfoStorable v : unvisitedExhibits) {
+                                    if (firstVertex.equals(v.id)) {
+                                        tempDontRemove = true;
+                                    }
+                                }
+                                dontRemoveFirst = tempDontRemove;
+
+                                for (VertexInfoStorable v : unvisitedExhibits) {
+                                    uExhibitsFirstVertex.add(v);
+                                }
+
+                                List<VertexInfoStorable> updatedVertexOrder = UpdatePathAlgorithm.shortestPath(g, uExhibitsFirstVertex, firstVertex);
+
+                                //if the newly calculated shortest route order for remaining exhibits is different than what it was before:
+                                // (changed the value in .equals from exhibitsInPlan to unvisitedExhibits
+
+                                List<String> updatedVertexOrderStrings = new ArrayList<>();
+                                List<String> uExhibitsFirstVertexStrings = new ArrayList<>();
+
+                                for (VertexInfoStorable v : updatedVertexOrder) {
+                                    updatedVertexOrderStrings.add(v.id);
+                                }
+                                for (VertexInfoStorable v : uExhibitsFirstVertex) {
+                                    uExhibitsFirstVertexStrings.add(v.id);
+                                }
+                                System.out.println(updatedVertexOrderStrings);
+                                System.out.println(uExhibitsFirstVertexStrings);
+
+                                //have to compare strings cause the list of objects will always be different...
+                                //also, you can't replan when viewing the last exhibit (exit).
+                                if (!updatedVertexOrderStrings.equals(uExhibitsFirstVertexStrings) && counter < shortestVertexOrder.size()-2) {
+                                    System.out.println("replan?");
+                                    tempUnvExhibits = updatedVertexOrder;
+                                    //Call Prompt User and pause thread
+                                    //TODO: make Replan message/button visible, which, when clicked, reconstructs shortestExhibitOrder, and calls update methods
+                                    replanButton.setClickable(true);
+                                    replanButton.setText("Replan?");
+                                } else {
+                                    tempUnvExhibits.clear();
+                                    replanButton.setClickable(false);
+                                    replanButton.setText("\\(^-^)/");
+
+                                }
                             }
+
+
                         });
 
 
                     }
 
-
-
-
-                    /*
-                    //TODO: USER STORY 7 REPLAN STUFF
-                    List<VertexInfoStorable> updatedVertexOrder = UpdatePathAlgorithm.shortestPath(g, locationUpdater.unvisitedExhibits, exactLocation.getSourceName());
-                    //if the newly calculated shortest route order for remaining exhibits is different than what it was before
-                    // (changed the value in .equals from exhibitsInPlan to unvisitedExhibits
-                    if (!updatedVertexOrder.equals(locationUpdater.unvisitedExhibits)) {
-                        //Call Prompt User and pause thread
-                        //TODO: make Replan message/button visible, which, when clicked, reconstructs shortestExhibitOrder, and calls update methods
-                        wait();
-                    }
-
-                    */
                 }
                 catch (Exception e){
                     Log.d("Thread Error Message: ", "Exception caught in LocationUpdater Thread");
                 }
 
-                Thread.sleep(100); //<-- not necessary, the sleep in the Lab was for the countdown timer
+                Thread.sleep(1000); //<-- not necessary, the sleep in the Lab was for the countdown timer
             }
         });
 
@@ -387,6 +464,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
 
     private void updateView(List<String> directions){
+        System.out.println("updating view...");
         adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, directions);
         listView = (ListView) findViewById(R.id.directions_list);
         listView.setAdapter(adapter);
@@ -397,12 +475,90 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         currLocationView.setText("Current location: " + location);
     }
 
+    private void updateTargetExhibitView(String target) {
+        TextView targetExhibitView = (TextView) findViewById(R.id.target_exhibit_view);
+        targetExhibitView.setText("To: " + target);
+    }
+
+    //fills unvisitedExhibits and visitedExhibits lists based on new nextExhibit or new ExhibitOrder (below)
+    //this updates when we change the counter (next or prev btn)
+    private void updateVisitedExhibits(){
+        unvisitedExhibits=new ArrayList<>();
+        visitedExhibits=new ArrayList<>();
+        boolean beginAdding = false;
+        int targetExhibitInd = counter + 1;
+        for(VertexInfoStorable i: shortestVertexOrder){
+            if(i.id.equals(shortestVertexOrder.get(targetExhibitInd).id)){
+                beginAdding=true;
+            }
+            if(beginAdding)unvisitedExhibits.add(i);
+            else visitedExhibits.add(i);
+        }
+    }
+
+    private void replanRoute() {
+        List<VertexInfoStorable> newOrder = new ArrayList<>();
+        List<String> visitedStrings = new ArrayList<>();
+        for (VertexInfoStorable v : visitedExhibits) {
+            newOrder.add(v);
+            visitedStrings.add(v.id);
+        }
+        System.out.println("visited: " + visitedStrings);
+        int startloop = (dontRemoveFirst) ? 0 : 1 ;
+
+        for (int i = startloop; i < tempUnvExhibits.size(); i++ ) { // removes either firstVertex (replan) or connectingExhibit (skip)
+            VertexInfoStorable v = tempUnvExhibits.get(i);
+            newOrder.add(v);
+        }
+
+        shortestVertexOrder = new ArrayList<>(newOrder);
+
+        //convert to string to print
+        List<String> printOrder = new ArrayList<>();
+        for (VertexInfoStorable v : shortestVertexOrder) {
+            printOrder.add(v.id);
+        }
+        List<String> printNewOrder = new ArrayList<>();
+        for (VertexInfoStorable v : newOrder) {
+            printNewOrder.add(v.id);
+        }
+
+        System.out.println(printOrder);
+        System.out.println(printNewOrder);
+
+
+        unvisitedExhibits = new ArrayList<>(tempUnvExhibits);
+
+        //UI should refresh automatically due to thread, but just in case we can refresh using
+        //the default directions method (exhibit to exhibit)
+        refreshDirections();
+    }
+
+    //refreshes directions to default directions (exhibit to exhibit)
+    //used after replanRoute()
+
+    private void refreshDirections() {
+        generateDetailed();
+        generateBrief();
+
+        if (!onBrief) {
+            updateView(directionsList);
+        }
+        else {
+            updateView(briefDirectionsList);
+        }
+        updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
+    }
+
     public void onNextBtnClick(View view) {
         directionsList.clear();
         dirSwitch.setChecked(false);
         counter+=1;
         generateDetailed();
         updateView(directionsList);
+        updateVisitedExhibits();
+        updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
+
     }
 
     //Defaults:
@@ -436,21 +592,23 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
         //if the two exhibits share the same parent
         if (start.equals(next)) {
+            briefDisable = true;
             if (destination.hasParent()) {
                 String direction = String.format("  %d. Remain in '%s', and find '%s' inside.\n",
-                        1,
+                        startNumber,
                         destination.getParent().name,
                         destination.name);
                 directionsList.add(direction);
                 return;
             } else {
                 String direction = String.format("  %d. You are at '%s'.\n",
-                        1,
+                        startNumber,
                         destination.name);
                 directionsList.add(direction);
                 return;
             }
         }
+        briefDisable = false;
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, start, next);
         int i = startNumber;
@@ -569,7 +727,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
     // setter for brief directions list
     public void setBrief_Directions_List() {
         // this.brief_Directions_List = brief_Directions_List;
-        if (this.directionsList.size() == 1) {
+        if (this.directionsList.size() == 1 || briefDisable) {
             this.briefDirectionsList = this.directionsList;
             return;
         }
@@ -781,9 +939,38 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
             updateView(directionsList);
             Button disableNext = (Button) findViewById(R.id.next_button);
             disableNext.setClickable(true);
+            updateVisitedExhibits();
+            updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
+
         }
     }
 
     public void onSkipBtnClick(View view) {
+        //does nothing if the counter is at the exit
+        if(counter >= shortestVertexOrder.size()-2){
+            return;
+        }
+
+        VertexInfoStorable connectingExhibit;
+        if (closestVertex != null) {
+            connectingExhibit = new VertexInfoStorable(vInfo.get(closestVertex));
+        } else {
+            connectingExhibit = shortestVertexOrder.get(counter);
+        }
+        List<VertexInfoStorable> uExhibitsRemoveNext = new ArrayList<>();
+        uExhibitsRemoveNext.add(connectingExhibit);
+        for (int i = 1; i < unvisitedExhibits.size(); i++) {   //start at 1 to skip next exhibit
+            VertexInfoStorable v = unvisitedExhibits.get(i);
+            uExhibitsRemoveNext.add(v);
+        }
+        List<VertexInfoStorable> updatedVertexOrder = UpdatePathAlgorithm.shortestPath(g, uExhibitsRemoveNext, connectingExhibit.id);
+
+        tempUnvExhibits = updatedVertexOrder;
+        replanRoute();
+    }
+
+    public void onReplanBtnClick(View view) {
+        System.out.println("click");
+        replanRoute();
     }
 }

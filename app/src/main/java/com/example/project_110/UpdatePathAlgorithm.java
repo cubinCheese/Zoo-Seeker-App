@@ -16,7 +16,9 @@ public class UpdatePathAlgorithm {
             //v.getParent().id returns string id of parent of v, or itself
             unvisitedSelectedExhibits.add(v.getParent().id);
         String start = startVertex;
+        String exit = "entrance_exit_gate";
         unvisitedSelectedExhibits.remove(start);
+        unvisitedSelectedExhibits.remove(exit);
         List<String> shortestExhibitOrder = new ArrayList<>();
         shortestExhibitOrder.add(start);
 
@@ -66,7 +68,7 @@ public class UpdatePathAlgorithm {
                 }
             }
         }
-        shortestExhibitOrder.add(shortestExhibitOrder.get(0)); // End where we started at
+        shortestExhibitOrder.add(exit); // End at exit
 
         HashMap<String, VertexInfoStorable> idToVertex = new HashMap<>();
         HashMap<String, List<VertexInfoStorable>> parentidToVertex = new HashMap<>();
