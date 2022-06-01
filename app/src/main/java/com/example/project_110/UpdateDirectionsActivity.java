@@ -3,6 +3,8 @@ package com.example.project_110;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -17,6 +19,7 @@ import android.content.Intent;
 import android.location.LocationManager;
 
 import android.util.Log;
+import android.widget.TextView;
 
 
 import androidx.activity.result.ActivityResult;
@@ -24,6 +27,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.gson.Gson;
@@ -42,6 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class UpdateDirectionsActivity extends AppCompatActivity {
@@ -57,46 +64,82 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
     private RouteProgressViewModel viewModel;
     private int counter;
     private boolean restarting;
-    private Button button;
+    private Button mock_button;
 
     LocationPermissionChecker permissionChecker;
     private LocationModel locationModel;
     ActivityResultLauncher<Intent> activityResultLauncher;
     private ListView listView;
+    private Button replanButton;
     private Switch dirSwitch;
+    private boolean onBrief;
 
+    LocationUpdater locationUpdater;
+    private TextView currLocationView;
+
+    private Future<Void> future;
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+
+    private List<VertexInfoStorable> unvisitedExhibits;
+    private List<VertexInfoStorable> visitedExhibits;
+    private List<VertexInfoStorable> tempUnvExhibits;
+    private String closestVertex;
+    private boolean dontRemoveFirst;
+    private boolean briefDisable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         System.out.println("OnCreate");
-        restarting = false;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_directions);
 
-        viewModel = new ViewModelProvider(this)
-                .get(RouteProgressViewModel.class);
+        //Assign instance variables
+        {
+            restarting = false;
 
-        shortestVertexOrder = getIntent().getParcelableArrayListExtra("shortestVertexOrder");
-        vInfo = ZooData.loadVertexInfoJSON(this, "zoo_node_new.json");
-        eInfo = ZooData.loadEdgeInfoJSON(this, "zoo_edge_new.json");
-        g = ZooData.loadZooGraphJSON(this, "zoo_graph_new.json");
+            viewModel = new ViewModelProvider(this)
+                    .get(RouteProgressViewModel.class);
 
-        counter = 0;
-        dirSwitch = (Switch) findViewById(R.id.d_b_switch);
-        generateDetailed();
-        updateView(directionsList);
-        dirSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(dirSwitch.isChecked()){
-                    generateBrief();
-                }
-                else{
-                    generateDetailed();
-                }
-//                updateView();
+            shortestVertexOrder = getIntent().getParcelableArrayListExtra("shortestVertexOrder");
+            vInfo = ZooData.loadVertexInfoJSON(this, "zoo_node_new.json");
+            eInfo = ZooData.loadEdgeInfoJSON(this, "zoo_edge_new.json");
+            g = ZooData.loadZooGraphJSON(this, "zoo_graph_new.json");
+
+            counter = 0;
+            updateVisitedExhibits();
+            tempUnvExhibits = new ArrayList<>();
+
+            onBrief = false;
+
+            //replan button
+            replanButton = (Button) findViewById(R.id.replan_button);
+            dontRemoveFirst = false;
+            briefDisable = false;
+
+            // switch
+            {
+                dirSwitch = (Switch) findViewById(R.id.d_b_switch);
+                generateDetailed();
+                updateView(directionsList);
+                dirSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if (dirSwitch.isChecked()) {
+                            //doesn't clear directionsList cause generateBrief reuses it
+                            onBrief = true;
+                            generateBrief();
+                            updateView(briefDirectionsList);
+                        } else {
+                            onBrief = false;
+                            directionsList.clear();
+                            generateDetailed();
+                            updateView(directionsList);
+                        }
+                    }
+                });
             }
-        });
+        }
 
         System.out.println("Starting Location Stuff (Permissions)");
         // Location stuff
@@ -111,29 +154,282 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         }
 
         System.out.println("Init activityResultLauncher (for mocking activity)");
-        activityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    System.out.println("FOOBAR");
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        String mockLocationString = data.getStringExtra("mockLocation");
-                        try {
-                            if (mockLocationString.length() != 0) {
-                                Gson gson = new Gson();
-                                Coord[] mockedCoordsArray = gson.fromJson(mockLocationString, Coord[].class);
-                                List<Coord> mockedCoordsList = new ArrayList<>(Arrays.asList(mockedCoordsArray));
-                                locationModel.removeLocationProviderSource();
-                                locationModel.mockRoute(mockedCoordsList, 10, TimeUnit.SECONDS);
-                                button.setText("Use Real Location");
+
+        //ActivityResultLauncher for setting mocked location
+        {
+            activityResultLauncher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            System.out.println("B");
+                            if (result.getResultCode() == Activity.RESULT_OK) {
+                                Intent data = result.getData();
+                                String mockLocationString = data.getStringExtra("mockLocation");
+                                try {
+                                    if (mockLocationString.length() != 0) {
+                                        Gson gson = new Gson();
+                                        Coord[] mockedCoordsArray = gson.fromJson(mockLocationString, Coord[].class);
+                                        List<Coord> mockedCoordsList = new ArrayList<>(Arrays.asList(mockedCoordsArray));
+                                        locationModel.removeLocationProviderSource();
+                                        locationModel.mockRoute(mockedCoordsList, 10, TimeUnit.SECONDS);
+                                        mock_button.setText("Use Real Location");
+                                    }
+                                    // Log.d("My App", mockLocationJson.toString());
+                                } catch (JsonSyntaxException j) {
+                                    Log.e("My App", "Could not parse malformed JSON: \"" + mockLocationString + "\"");
+                                }
                             }
-                            // Log.d("My App", mockLocationJson.toString());
-                        } catch (JsonSyntaxException j) {
-                            Log.e("My App", "Could not parse malformed JSON: \"" + mockLocationString + "\"");
                         }
+                    });
+            mock_button = findViewById(R.id.mock_location_button);
+        }
+
+
+        //LOCATION UPDATER THREAD
+//         (List<VertexInfoStorable> exhibitsInPlan, String nextExhibit,LocationModel locationModel,
+//                                    Map<String, ZooData.VertexInfo> vInfo,Map<String, ZooData.EdgeInfo> eInfo,
+//                                    Graph<String, IdentifiedWeightedEdge> graph)
+        locationUpdater = new LocationUpdater(shortestVertexOrder, shortestVertexOrder.get(1).id,
+                locationModel, vInfo, eInfo, g);
+
+        updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
+
+        this.future = backgroundThreadExecutor.submit(() -> {
+            while (true) { // TODO: change true to something that makes sense
+
+                try {
+                    Coord lastKnownCoords = locationUpdater.locationModel.getLastKnownCoords().getValue();
+
+                    if (lastKnownCoords != null) {
+                        locationUpdater.currentLocation = lastKnownCoords;
+                        //System.out.println(lastKnownCoords);
+
+                        ExactLocation exactLocation = locationUpdater.findExactLocation(locationUpdater.currentLocation);
+
+                        runOnUiThread(() -> {
+                            updateLocationView(locationUpdater.currentLocation.toString());
+
+
+                            //TODO: for some reason this code crashes when outside the UI thread
+
+                            // **** updates directionsList based on exactLocationInfo (US 6) + US 7 ****
+                            {
+                                int startNumber = 1;
+                                List<String> currDirList = new ArrayList<>();
+
+
+                                VertexInfoStorable startVert = shortestVertexOrder.get(counter).getParent();
+                                //VertexInfoStorable destination = shortestVertexOrder.get(nextCounter);
+                                //if ()
+                                //**if the distance from currentLocation to startVert is less than 100 then
+                                //**skip the special direction stuff below
+
+                                //stores directions to return to edge if more than 100 ft away==========
+                                int distancetoEdge = exactLocation.getDistanceToEdge();
+
+                                //System.out.println("distToEdge: " + distancetoEdge);
+
+                                if (distancetoEdge > 100) {
+                                    String dir = String.format("  %d. Walk %d feet along %s from '%s' to '%s'.\n",
+                                            startNumber,
+                                            distancetoEdge,
+                                            "the beaten path",
+                                            "your current location (off-road)",
+                                            eInfo.get(exactLocation.getEdgeName()).street);
+                                    currDirList.add(dir);
+                                    startNumber++;
+                                }
+
+                                // we have two options: go to edge source or go to edge target.==========
+                                // we pick the one that leads us to the goal soonest:
+                                //      dijkstras from source to next exhibit
+                                //      dijkstras from target to next exhibit
+                                //      figure out which path returns shortest distance
+
+                                int nextCounter = counter+1;
+                                String next = shortestVertexOrder.get(nextCounter).getParent().id;
+                                VertexInfoStorable destination = shortestVertexOrder.get(nextCounter);
+                                String edgeSource = exactLocation.getSourceName();
+                                String edgeTarget = exactLocation.getTargetName();
+
+                                int edgeSourceDist = exactLocation.getDistanceFromSource();
+                                int edgeTargetDist = exactLocation.getDistanceToTarget();
+
+                                closestVertex = (edgeSourceDist < edgeTargetDist) ?  edgeSource : edgeTarget;
+
+                                //System.out.println("disttoSource: " + edgeSourceDist);
+                                //System.out.println("disttoTarget: " + edgeTargetDist);
+
+                                String firstVertex = edgeSource; //<--arbitrary assignment, we change later
+                                int distToFirstVertex;
+
+                                //if the closestCoord is close to one of the vertices, we skip
+                                //the "run dijkstras at both vertices" section.
+                                boolean atFirstVertex = false;
+                                if (edgeSourceDist < 100) {
+                                    firstVertex = edgeSource;
+                                    distToFirstVertex = edgeSourceDist;
+                                    atFirstVertex = true;
+
+                                } else if (edgeTargetDist < 100) {
+                                    firstVertex = edgeTarget;
+                                    distToFirstVertex = edgeTargetDist;
+                                    atFirstVertex = true;
+                                }
+
+                                if (!atFirstVertex) {
+                                    GraphPath<String, IdentifiedWeightedEdge> sourceToNext = DijkstraShortestPath.
+                                            findPathBetween(g, edgeSource, next);
+                                    GraphPath<String, IdentifiedWeightedEdge> targetToNext = DijkstraShortestPath.
+                                            findPathBetween(g, edgeTarget, next);
+
+                                    double distSourcePath = edgeSourceDist;
+                                    for(IdentifiedWeightedEdge e : sourceToNext.getEdgeList()) {
+                                        distSourcePath += g.getEdgeWeight(e);
+                                    }
+                                    double distTargetPath = edgeTargetDist;
+                                    for(IdentifiedWeightedEdge e : sourceToNext.getEdgeList()) {
+                                        distSourcePath += g.getEdgeWeight(e);
+                                    }
+
+                                    //GraphPath<String, IdentifiedWeightedEdge> pathToUse;
+
+
+                                    if (distSourcePath < distTargetPath) {  //source path shorter
+                                        firstVertex = edgeSource;
+                                        distToFirstVertex = edgeSourceDist;
+                                    } else {                                //target path shorter
+                                        firstVertex = edgeTarget;
+                                        distToFirstVertex = edgeTargetDist;
+                                    }
+
+                                    //store direction from closestCoord to first vertex of path==============
+
+                                    if (distToFirstVertex > 100) {
+                                        String dir = String.format("  %d. Walk %d feet along %s from '%s' to '%s'.\n",
+                                                startNumber,
+                                                distToFirstVertex,
+                                                eInfo.get(exactLocation.getEdgeName()).street,
+                                                "your location",
+                                                vInfo.get(firstVertex).name);
+                                        currDirList.add(dir);
+                                        startNumber++;
+                                    }
+                                }
+
+
+
+                                //continue printing path (generateDetailed)==============================
+                                //---(if switch on brief, generate brief after...
+
+                                //shallow copy directionsList to see if anything changed
+                                List<String> tempDirectionsList = new ArrayList<>(directionsList);
+
+                                //if we were off road/in the middle of an edge, add the 2 dirs to directionsList
+                                directionsList.clear();
+                                if(!currDirList.isEmpty()) {
+                                    for (String dir : currDirList) {
+                                        directionsList.add(dir);
+                                    }
+                                }
+
+                                generateDetailed(startNumber,firstVertex,next,destination);
+                                generateBrief();
+
+                                //System.out.println(tempDirectionsList);
+                                //System.out.println(directionsList);
+
+                                //only updates and refreshes UI if anything changed.
+                                if(!tempDirectionsList.equals(directionsList)) {
+
+                                    //** ON UI THREAD ** update view (with directionsList or briefDirectionsList
+                                    runOnUiThread(() -> {
+                                        if (!onBrief) {
+                                            updateView(directionsList);
+                                        }
+                                        else {
+                                            updateView(briefDirectionsList);
+                                        }
+                                    });
+                                }
+
+
+
+
+
+                                //TODO: USER STORY 7 REPLAN STUFF
+                                //firstVertex + unvisited exhibits
+                                List<VertexInfoStorable> uExhibitsFirstVertex = new ArrayList<>();
+
+                                //only add first Vertex if that's not the next exhibit
+                                if(!firstVertex.equals(unvisitedExhibits.get(0).id)) {
+                                    uExhibitsFirstVertex.add(new VertexInfoStorable(vInfo.get(firstVertex)));
+                                }
+
+                                //raise dontRemoveFirst flag if firstVertex is one of our exhibits to visit
+                                boolean tempDontRemove = false;
+                                for (VertexInfoStorable v : unvisitedExhibits) {
+                                    if (firstVertex.equals(v.id)) {
+                                        tempDontRemove = true;
+                                    }
+                                }
+                                dontRemoveFirst = tempDontRemove;
+
+                                for (VertexInfoStorable v : unvisitedExhibits) {
+                                    uExhibitsFirstVertex.add(v);
+                                }
+
+                                List<VertexInfoStorable> updatedVertexOrder = UpdatePathAlgorithm.shortestPath(g, uExhibitsFirstVertex, firstVertex);
+
+                                //if the newly calculated shortest route order for remaining exhibits is different than what it was before:
+                                // (changed the value in .equals from exhibitsInPlan to unvisitedExhibits
+
+                                List<String> updatedVertexOrderStrings = new ArrayList<>();
+                                List<String> uExhibitsFirstVertexStrings = new ArrayList<>();
+
+                                for (VertexInfoStorable v : updatedVertexOrder) {
+                                    updatedVertexOrderStrings.add(v.id);
+                                }
+                                for (VertexInfoStorable v : uExhibitsFirstVertex) {
+                                    uExhibitsFirstVertexStrings.add(v.id);
+                                }
+                                System.out.println(updatedVertexOrderStrings);
+                                System.out.println(uExhibitsFirstVertexStrings);
+
+                                //have to compare strings cause the list of objects will always be different...
+                                //also, you can't replan when viewing the last exhibit (exit).
+                                if (!updatedVertexOrderStrings.equals(uExhibitsFirstVertexStrings) && counter < shortestVertexOrder.size()-2) {
+                                    System.out.println("replan?");
+                                    tempUnvExhibits = updatedVertexOrder;
+                                    //Call Prompt User and pause thread
+                                    //TODO: make Replan message/button visible, which, when clicked, reconstructs shortestExhibitOrder, and calls update methods
+                                    replanButton.setClickable(true);
+                                    replanButton.setText("Replan?");
+                                } else {
+                                    tempUnvExhibits.clear();
+                                    replanButton.setClickable(false);
+                                    replanButton.setText("\\(^-^)/");
+
+                                }
+                            }
+
+
+                        });
+
+
                     }
-                });
-        button = findViewById(R.id.mock_location_button);
+
+                }
+                catch (Exception e){
+                    Log.d("Thread Error Message: ", "Exception caught in LocationUpdater Thread");
+                }
+
+                Thread.sleep(1000); //<-- not necessary, the sleep in the Lab was for the countdown timer
+            }
+        });
+
+
         System.out.println("End of OnCreate");
     }
 
@@ -158,7 +454,9 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
             this.shortestVertexOrder = item.shortestVertexOrder;
             this.counter = item.currDestInd;
             System.out.println("Resume sets counter: " + this.counter);
+            directionsList.clear();
             generateDetailed();
+            updateView(directionsList);
             //nextDirection();
         }
         System.out.println("b");
@@ -167,9 +465,90 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
 
     private void updateView(List<String> directions){
+        System.out.println("updating view...");
         adapter = new ArrayAdapter<String>(this, R.layout.activity_listview, directions);
         listView = (ListView) findViewById(R.id.directions_list);
         listView.setAdapter(adapter);
+    }
+
+    private void updateLocationView(String location) {
+        currLocationView = (TextView) findViewById(R.id.curr_location_textview);
+        currLocationView.setText("Current location: " + location);
+    }
+
+    private void updateTargetExhibitView(String target) {
+        TextView targetExhibitView = (TextView) findViewById(R.id.target_exhibit_view);
+        targetExhibitView.setText("To: " + target);
+    }
+
+    //fills unvisitedExhibits and visitedExhibits lists based on new nextExhibit or new ExhibitOrder (below)
+    //this updates when we change the counter (next or prev btn)
+    private void updateVisitedExhibits(){
+        unvisitedExhibits=new ArrayList<>();
+        visitedExhibits=new ArrayList<>();
+        boolean beginAdding = false;
+        int targetExhibitInd = counter + 1;
+        for(VertexInfoStorable i: shortestVertexOrder){
+            if(i.id.equals(shortestVertexOrder.get(targetExhibitInd).id)){
+                beginAdding=true;
+            }
+            if(beginAdding)unvisitedExhibits.add(i);
+            else visitedExhibits.add(i);
+        }
+    }
+
+    private void replanRoute() {
+        List<VertexInfoStorable> newOrder = new ArrayList<>();
+        List<String> visitedStrings = new ArrayList<>();
+        for (VertexInfoStorable v : visitedExhibits) {
+            newOrder.add(v);
+            visitedStrings.add(v.id);
+        }
+        System.out.println("visited: " + visitedStrings);
+        int startloop = (dontRemoveFirst) ? 0 : 1 ;
+
+        for (int i = startloop; i < tempUnvExhibits.size(); i++ ) { // removes either firstVertex (replan) or connectingExhibit (skip)
+            VertexInfoStorable v = tempUnvExhibits.get(i);
+            newOrder.add(v);
+        }
+
+        shortestVertexOrder = new ArrayList<>(newOrder);
+
+        //convert to string to print
+        List<String> printOrder = new ArrayList<>();
+        for (VertexInfoStorable v : shortestVertexOrder) {
+            printOrder.add(v.id);
+        }
+        List<String> printNewOrder = new ArrayList<>();
+        for (VertexInfoStorable v : newOrder) {
+            printNewOrder.add(v.id);
+        }
+
+        System.out.println(printOrder);
+        System.out.println(printNewOrder);
+
+
+        unvisitedExhibits = new ArrayList<>(tempUnvExhibits);
+
+        //UI should refresh automatically due to thread, but just in case we can refresh using
+        //the default directions method (exhibit to exhibit)
+        refreshDirections();
+    }
+
+    //refreshes directions to default directions (exhibit to exhibit)
+    //used after replanRoute()
+
+    private void refreshDirections() {
+        generateDetailed();
+        generateBrief();
+
+        if (!onBrief) {
+            updateView(directionsList);
+        }
+        else {
+            updateView(briefDirectionsList);
+        }
+        updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
     }
 
     public void onNextBtnClick(View view) {
@@ -178,35 +557,62 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         counter+=1;
         generateDetailed();
         updateView(directionsList);
+        updateVisitedExhibits();
+        updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
+
     }
 
+    //Defaults:
+    //startNumber = 1
+    //start = vertex of current exhibit in route
+    //next = vertex of next exhibit in route
+    //destination = vertexinfostorable of next
+    public void generateDetailed() {
 
-    public void generateDetailed(){
-        directionsList.clear();
-        updateView(directionsList);
+        String start = shortestVertexOrder.get(counter).getParent().id;
+        int nextCounter = counter+1;
+        String next = shortestVertexOrder.get(nextCounter).getParent().id;
+        VertexInfoStorable destination = shortestVertexOrder.get(nextCounter);
+
+        generateDetailed(1,start,next,destination);
+    }
+
+    //int startNumber:  tells what numbered step to start generating directions
+    //String start:     vertex id of where to start Dijkstras
+    //String next:      vertex id of where to end Dijkstras
+    //VertexInfoStorable destination:   VertexInfoStorable with id of next
+    public void generateDetailed(int startNumber, String start, String next, VertexInfoStorable destination){
+        //directionsList.clear(); <---- these were moved to switch method
+        //updateView(directionsList);
+
+        //disables Next button if the counter is on the last exhibit basically
         if(counter == shortestVertexOrder.size()-2){
             Button disableNext = (Button) findViewById(R.id.next_button);
             disableNext.setClickable(false);
         }
 
-        String start = shortestVertexOrder.get(counter).getParent().id;
-        //counter+=1;
-        int nextCounter = counter+1;
-        String next = shortestVertexOrder.get(nextCounter).getParent().id;
-        VertexInfoStorable destination = shortestVertexOrder.get(nextCounter);
-
         //if the two exhibits share the same parent
         if (start.equals(next)) {
-            String direction = String.format("  %d. Remain in '%s', and find '%s' inside.\n",
-                        1,
+            briefDisable = true;
+            if (destination.hasParent()) {
+                String direction = String.format("  %d. Remain in '%s', and find '%s' inside.\n",
+                        startNumber,
                         destination.getParent().name,
                         destination.name);
-            directionsList.add(direction);
-            return;
+                directionsList.add(direction);
+                return;
+            } else {
+                String direction = String.format("  %d. You are at '%s'.\n",
+                        startNumber,
+                        destination.name);
+                directionsList.add(direction);
+                return;
+            }
         }
+        briefDisable = false;
 
         GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, start, next);
-        int i = 1;
+        int i = startNumber;
 
         String currVertex = start;
 
@@ -226,7 +632,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
             }
 
             if (loopCount != edgeCount-1 || !destination.hasParent() ) {
-                String direction = String.format("  %d. Walk %.0f meters along %s from '%s' to '%s'.\n",
+                String direction = String.format("  %d. Walk %.0f feet along %s from '%s' to '%s'.\n",
                         i,
                         g.getEdgeWeight(e),
                         eInfo.get(e.getId()).street,
@@ -236,7 +642,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
                 directionsList.add(direction);
                 currVertex = target.id;
             } else {
-                String direction = String.format("  %d. Walk %.0f meters along %s from '%s' to '%s', and find '%s' inside.\n",
+                String direction = String.format("  %d. Walk %.0f feet along %s from '%s' to '%s', and find '%s' inside.\n",
                         i,
                         g.getEdgeWeight(e),
                         eInfo.get(e.getId()).street,
@@ -258,7 +664,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 //        String test = "Brief Directions";
 //        directionsList.add(test);
         this.setBrief_Directions_List();
-        updateView(this.briefDirectionsList);
+        //updateView(this.briefDirectionsList); <-- moved to switch method
     }
 
     // sorting a List of List of integers
@@ -307,9 +713,13 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         // this.elemStr = elemStr;
 
         // extract startIndex [this substr] endIndex
+
+
         int startIndex = toExtractFrom.indexOf(start)+offset; // starting index of string ("along")
         // offset 5 for 'along', offset 1 for space
         int endIndex = toExtractFrom.indexOf(" "+end);         // ending index of string ("from")
+
+
         String str_ID = toExtractFrom.substring(startIndex, endIndex); // along [str_ID]
 
         return str_ID;
@@ -318,7 +728,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
     // setter for brief directions list
     public void setBrief_Directions_List() {
         // this.brief_Directions_List = brief_Directions_List;
-        if (this.directionsList.size() == 1) {
+        if (this.directionsList.size() == 1 || briefDisable) {
             this.briefDirectionsList = this.directionsList;
             return;
         }
@@ -425,20 +835,20 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
                     // extract total meters (part of final data)
                     int startIndex = tempDetailed_DL.indexOf("Walk")+5;
-                    int endIndex = tempDetailed_DL.indexOf(" meters");
+                    int endIndex = tempDetailed_DL.indexOf(" feet");
                     //String strMeters = toModify.substring(startIndex,endIndex);
                     //System.out.println(startIndex);
-                    String strMeters = findSubStr("Walk",5,"meters",toModify);
+                    String strFeet = findSubStr("Walk",5,"feet",toModify);
                     //System.out.println(strMeters.getClass().getSimpleName());
-                    int intMeters = Integer.parseInt(strMeters); // convert to integer
+                    int intFeet = Integer.parseInt(strFeet); // convert to integer
                     //System.out.println(intMeters.getClass().getSimpleName());
-                    sum = sum + intMeters; // group dist. (meter) sum
+                    sum = sum + intFeet; // group dist. (meter) sum
 
                     // insert sum into tempDetailed_DL at last card
                     if (CounterExt==intList.size()-1) { // on last loop iteration
-                        String totMeters = String.valueOf(sum); // convert back to string
+                        String totFeet = String.valueOf(sum); // convert back to string
                         //System.out.println("totMeters: " + totMeters);
-                        String updateWith = tempDetailed_DL.get(elemInt).replace(strMeters,totMeters);
+                        String updateWith = tempDetailed_DL.get(elemInt).replace(strFeet,totFeet);
                         tempDetailed_DL.set(elemInt, updateWith);
 
                         //System.out.println("Check last appearance: " +tempDetailed_DL);
@@ -486,6 +896,16 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
 
         //System.out.println("Look here >>>>>>>>>>>>>>>>>6");
         //log.d("this is final return: ", String.valueof(return_briefDirections));
+
+        //fixes numbers in front of direction steps
+
+        for (int i = 0; i < return_briefDirections.size(); i++ ) {
+            String tempString = return_briefDirections.get(i);
+            String substring = tempString.substring(3); // <-- substring starting after number
+            String newString = "  " + (i+1) + substring;
+            return_briefDirections.set(i, newString);
+        }
+
         this.briefDirectionsList = return_briefDirections;
 
     } // end of brief_directionsList implementation
@@ -504,11 +924,54 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
     public void onMockLocationBtnClick(View view) {
         if (locationModel.isUsingMockedCoords()) {
              locationModel.useRealCoords();
-             button.setText("Mock Location");
+             mock_button.setText("Mock Location");
         } else {
             Intent intent = new Intent(this, MockLocationActivity.class);
             activityResultLauncher.launch(intent);
         }
     }
 
+    public void onPreviousBtnClick(View view) {
+        if (counter > 0) {
+            directionsList.clear();
+            dirSwitch.setChecked(false);
+            counter-=1;
+            generateDetailed();
+            updateView(directionsList);
+            Button disableNext = (Button) findViewById(R.id.next_button);
+            disableNext.setClickable(true);
+            updateVisitedExhibits();
+            updateTargetExhibitView(shortestVertexOrder.get(counter+1).name);
+
+        }
+    }
+
+    public void onSkipBtnClick(View view) {
+        //does nothing if the counter is at the exit
+        if(counter >= shortestVertexOrder.size()-2){
+            return;
+        }
+
+        VertexInfoStorable connectingExhibit;
+        if (closestVertex != null) {
+            connectingExhibit = new VertexInfoStorable(vInfo.get(closestVertex));
+        } else {
+            connectingExhibit = shortestVertexOrder.get(counter);
+        }
+        List<VertexInfoStorable> uExhibitsRemoveNext = new ArrayList<>();
+        uExhibitsRemoveNext.add(connectingExhibit);
+        for (int i = 1; i < unvisitedExhibits.size(); i++) {   //start at 1 to skip next exhibit
+            VertexInfoStorable v = unvisitedExhibits.get(i);
+            uExhibitsRemoveNext.add(v);
+        }
+        List<VertexInfoStorable> updatedVertexOrder = UpdatePathAlgorithm.shortestPath(g, uExhibitsRemoveNext, connectingExhibit.id);
+
+        tempUnvExhibits = updatedVertexOrder;
+        replanRoute();
+    }
+
+    public void onReplanBtnClick(View view) {
+        System.out.println("click");
+        replanRoute();
+    }
 }

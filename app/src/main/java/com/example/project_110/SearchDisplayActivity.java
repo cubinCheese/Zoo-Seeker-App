@@ -36,6 +36,9 @@ public class SearchDisplayActivity extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
     private SearchListViewModel searchListViewModel;
+    
+    private boolean keepThreadOpen;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,10 +86,11 @@ public class SearchDisplayActivity extends AppCompatActivity {
         selectedRecyclerView.setAdapter(selectedAdapter);
 
 
-
-
+        keepThreadOpen = true;
+        
         this.future = backgroundThreadExecutor.submit(() -> {
-            while (true) { // TODO: change true to something that makes sense
+            while (keepThreadOpen) { // TODO: change true to something that makes sense
+                //System.out.println("still in old thread");
                 runOnUiThread(() -> {
                     List<VertexInfoStorable> packedList = new ArrayList();
                     for (ZooData.VertexInfo vertex : searchbar.currentAnimalsFromQuery){
@@ -99,6 +103,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
                 });
                 Thread.sleep(100);
             }
+            return null;
         });
 
 
@@ -119,7 +124,7 @@ public class SearchDisplayActivity extends AppCompatActivity {
         if (getSelectedExhibitsList().size() == 0) {
             return;
         }
-
+        keepThreadOpen = false;
         Intent intent = new Intent(this, PlanActivity.class);
         intent.putParcelableArrayListExtra("selectedExhibitsList", (ArrayList<VertexInfoStorable>) getSelectedExhibitsList());
         startActivity(intent);

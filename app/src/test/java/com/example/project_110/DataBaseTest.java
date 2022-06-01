@@ -41,9 +41,11 @@ public class DataBaseTest {
     @Test
     public void testInsert(){
         VertexInfoStorable item1 = new VertexInfoStorable(
-                new ZooData.VertexInfo("grizz", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(), 0.0, 0.0));
+
+                new ZooData.VertexInfo("grizz","", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(),0.0,0.0));
         VertexInfoStorable item2 = new VertexInfoStorable(
-                new ZooData.VertexInfo("grizz", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(), 0.0, 0.0));
+                new ZooData.VertexInfo("grizzly","", ZooData.VertexInfo.Kind.EXHIBIT, "grizzly", new ArrayList<String>(),0.0,0.0));
+
 
         long id1 = dao.insert(item1);
         long id2 = dao.insert(item2);

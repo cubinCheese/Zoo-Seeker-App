@@ -89,7 +89,7 @@ public class PlanActivity extends AppCompatActivity {
         System.out.println(exhibitStName);
         List<String> exhibitInfo = new ArrayList<>();
         for(int i = 0; i<exhibitNames.size(); i++){
-            String info = exhibitNames.get(i) + " -- " + exhibitDists.get(i+1) + " meters -- " + exhibitStName.get(i);
+            String info = exhibitNames.get(i) + " -- " + exhibitDists.get(i+1) + " feet -- " + exhibitStName.get(i);
             exhibitInfo.add(info);
         }
 

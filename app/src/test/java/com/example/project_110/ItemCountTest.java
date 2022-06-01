@@ -33,7 +33,8 @@ public class ItemCountTest {
         SelectedDisplayAdapter selectedDisplayAdapter = new SelectedDisplayAdapter();
         List<VertexInfoStorable> addList = new ArrayList<VertexInfoStorable>();
         addList.add(new VertexInfoStorable(
-                new ZooData.VertexInfo("grizz", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(), 0.0, 0.0)));
+                new ZooData.VertexInfo("grizz","", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(),0.0,0.0)));
+
 
         selectedDisplayAdapter.setSelectedExhibits(addList);
         assertEquals(selectedDisplayAdapter.getItemCount(),1);
@@ -47,7 +48,9 @@ public class ItemCountTest {
         SelectedDisplayAdapter selectedDisplayAdapter = new SelectedDisplayAdapter();
         List<VertexInfoStorable> addList = new ArrayList<VertexInfoStorable>();
         addList.add(new VertexInfoStorable(
-                new ZooData.VertexInfo("grizz", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(), 0.0, 0.0)));
+
+                new ZooData.VertexInfo("grizz","", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(),0.0,0.0)));
+
 
         selectedDisplayAdapter.setSelectedExhibits(addList);
         selectedDisplayAdapter.setSelectedExhibits(Collections.emptyList());

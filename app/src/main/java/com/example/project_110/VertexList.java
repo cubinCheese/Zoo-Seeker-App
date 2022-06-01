@@ -24,11 +24,6 @@ public class VertexList {
 
 
 
-    public ZooData.VertexInfo getParentNode(String nodeId){
-
-        return null;
-    }
-
     // Builds searchable Map
     private void makeMap(){
         for(Map.Entry<String, ZooData.VertexInfo> m : nodeList.entrySet()){
@@ -46,10 +41,8 @@ public class VertexList {
                 else{
                     searchMap.get(s.toLowerCase()).add(info);
                 }
-
             }
             searchMap.put(m.getValue().name.toLowerCase(), new ArrayList<>(Arrays.asList(m.getValue())));
-            Log.d("FOOBAR", "Map made!");
         }
     }
 

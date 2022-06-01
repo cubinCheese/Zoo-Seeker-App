@@ -33,7 +33,9 @@ public class VertexListTest {
         grizzList.add("mammal");
 
         // Generating 'grizzly_bears' vertexInfo as element and adding to mock map
-        indexedZooData.put("grizzly_bears", new ZooData.VertexInfo("grizzly_bears", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "Grizzly Bears", grizzList, 0.0, 0.0));
+
+        indexedZooData.put("grizzly_bears",new ZooData.VertexInfo("grizzly_bears","", ZooData.VertexInfo.Kind.EXHIBIT, "Grizzly Bears", grizzList,0.0,0.0));
+
 
         // Generating 'pengList' vertex within vList -- add to mock map
         List<String> pengList = new ArrayList();
@@ -42,19 +44,22 @@ public class VertexListTest {
         pengList.add("bird");
         pengList.add("snow");
 
-        indexedZooData.put("penguin_place",new ZooData.VertexInfo("penguin_place", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "Penguin Place", pengList, 0.0, 0.0));
+        indexedZooData.put("penguin_place",new ZooData.VertexInfo("penguin_place","", ZooData.VertexInfo.Kind.EXHIBIT, "Penguin Place", pengList,0.0,0.0));
+
 
         // Generating 'pandaList' vertex within vList -- add to mock map
         List<String> pandaList = new ArrayList();
         pandaList.add("panda");
         pandaList.add("bird");
 
-        indexedZooData.put("panda_palace",new ZooData.VertexInfo("panda_palace", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "Panda Palace", pandaList, 0.0, 0.0));
+        indexedZooData.put("panda_palace",new ZooData.VertexInfo("panda_palace","", ZooData.VertexInfo.Kind.EXHIBIT, "Panda Palace", pandaList,0.0,0.0));
 
 
         List<String> duckList = new ArrayList();
         duckList.add("duck");
-        indexedZooData.put("duck_palace",new ZooData.VertexInfo("duck_palace", "no_parent", ZooData.VertexInfo.Kind.EXHIBIT, "Duck Palace", duckList, 0.0, 0.0));
+
+        indexedZooData.put("duck_palace",new ZooData.VertexInfo("duck_palace","", ZooData.VertexInfo.Kind.EXHIBIT, "Duck Palace", duckList,0.0,0.0));
+
 
     }
 
