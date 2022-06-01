@@ -23,6 +23,7 @@ public class UpdateDirectionsActivityTest {
     @Test
     public void test() throws InterruptedException {
         ActivityScenario scenario = rule.getScenario();
+
         scenario.onActivity(activity -> {
             Switch sw = (Switch) activity.findViewById(R.id.d_b_switch);
             assertEquals(false, sw.isChecked());

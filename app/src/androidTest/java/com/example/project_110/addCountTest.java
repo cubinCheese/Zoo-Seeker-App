@@ -57,7 +57,7 @@ public class addCountTest {
         ActivityScenario<SearchDisplayActivity> scenario = ActivityScenario.launch((SearchDisplayActivity.class));
         scenario.onActivity(activity -> {
             VertexInfoStorable grizz = new VertexInfoStorable(
-                    new ZooData.VertexInfo("grizz", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>()));
+                    new ZooData.VertexInfo("grizz", "", ZooData.VertexInfo.Kind.EXHIBIT, "grizz", new ArrayList<String>(), 0.0, 0.0));
             dao.insert(grizz);
             try{
                 //Thread.sleep(200);
