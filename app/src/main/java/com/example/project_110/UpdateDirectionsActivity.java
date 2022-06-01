@@ -154,6 +154,7 @@ public class UpdateDirectionsActivity extends AppCompatActivity {
         }
 
         System.out.println("Init activityResultLauncher (for mocking activity)");
+
         //ActivityResultLauncher for setting mocked location
         {
             activityResultLauncher = registerForActivityResult(

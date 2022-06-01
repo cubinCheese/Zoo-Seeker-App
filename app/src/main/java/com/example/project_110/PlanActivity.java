@@ -40,16 +40,18 @@ public class PlanActivity extends AppCompatActivity {
         // go through map, get(vInfo where .Kind.Gate)
 
         shortestVertexOrder = PathAlgorithm.shortestPath(g, selectedExhibitsList);
-        System.out.println("start for");
+
+
         for(VertexInfoStorable v : shortestVertexOrder){
             shortestVertexOrder_clean.add(v);
         }
-        System.out.println("end for");
+
 
         exhibitNames = new ArrayList<>();
         exhibitDists = new ArrayList<>();
         exhibitStName = new ArrayList<>();
         exhibitDists.add(0);
+
 
         shortestVertexOrder_clean.remove(shortestVertexOrder_clean.size()-1);
         int distanceCount = 0;
@@ -59,6 +61,7 @@ public class PlanActivity extends AppCompatActivity {
             String debugExhibit = shortestVertexOrder.get(index).id;
             System.out.println("outer for loop: exhibit " + debugExhibit);
             GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, shortestVertexOrder.get(index).getParent().id, shortestVertexOrder.get(++index).getParent().id);
+
 
             if (path.getEdgeList().size() == 0) {
                 if (exhibitStName.size() == 0) {
