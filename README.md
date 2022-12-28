@@ -8,4 +8,4 @@
     - [Milestone 2](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_2_Iteration_Check_In.pdf)
 
 
-<img src="README-APP-Sample.gif" width="281" height="600"/>
+![README-APP-Sample](https://user-images.githubusercontent.com/93562548/209746298-a8bcab3b-0e25-4a64-85c3-a1dd3fac0c76.gif)
