@@ -6,5 +6,6 @@
  - ZenHub (progress): 
     - [Milestone 1](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_1_Iteration_Check-In_-_Google_Docs.pdf)
     - [Milestone 2](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_2_Iteration_Check_In.pdf)
-    - 
-<img src="README-APP-Sample.gif" width="561" height="1200"/>
+
+
+<img src="README-APP-Sample.gif" width="281" height="600"/>
