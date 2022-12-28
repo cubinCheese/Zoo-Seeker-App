@@ -7,5 +7,4 @@
     - [Milestone 1](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_1_Iteration_Check-In_-_Google_Docs.pdf)
     - [Milestone 2](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_2_Iteration_Check_In.pdf)
 
-
-![README-APP-Sample](https://user-images.githubusercontent.com/93562548/209746298-a8bcab3b-0e25-4a64-85c3-a1dd3fac0c76.gif)
+![README-APP-Sample](https://user-images.githubusercontent.com/93562548/209746499-a26cb482-c938-4d64-adc1-db5771291d72.gif)
