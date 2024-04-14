@@ -16,4 +16,6 @@ Our mobile navigation app gives you the chance to choose which exhibits you want
     - [Milestone 1](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_1_Iteration_Check-In_-_Google_Docs.pdf)
     - [Milestone 2](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_2_Iteration_Check_In.pdf)
 
+# Demo
+
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/93562548/209746931-92208dbf-2f23-4252-9d34-a1a04effdfbf.gif)
