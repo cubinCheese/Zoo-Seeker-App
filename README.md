@@ -1,5 +1,14 @@
-# zooseeker-cse-110-team-19
-- imported from OG vs-control location: https://github.com/CSE-110-Spring-2022/zooseeker-cse-110-team-19
+# Overview
+San Diego Zoo is the #1 largest zoo in California! With 4000 animals and over 650 species, your trip will be tough without a planned schedule!
+Our mobile navigation app gives you the chance to choose which exhibits you want to visit and we'll generate an easily digestible set of directions for you to navigate from your first exhibit to your last. 
+
+# Technologies Used
+- Java / Kotlin
+- JUnit, Espresso
+- Android Studios
+- Google Locations API
+
+# Development Aspects
  - Design: 
     - [Milestone 1](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS_1_Planning.pdf)
     - [Milestone 2](https://github.com/all026/Zoo-Seeker-App/blob/main/documentation-planning/Team_19_MS2_Planning.pdf)
